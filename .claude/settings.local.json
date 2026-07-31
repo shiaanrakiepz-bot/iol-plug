@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "PowerShell(node --version; npm --version; Write-Output \"---\"; \\(Get-Command node\\).Source; \\(Get-Command npm\\).Source)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)"
+    ]
+  }
+}

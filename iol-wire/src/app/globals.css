@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Surfaces are mixed from --tint: the accent by default, but the feed points
+   it at the current story's category colour so the whole shell re-skins as
+   you swipe. Falls back to a flat mix when color-mix is unsupported.
+
+   --tint is registered as a real <color> so it can be transitioned. Animating
+   the tint itself, rather than putting a background-color transition on each
+   consumer, means every derived surface — background, cards, sheets, nav —
+   cross-fades in lockstep off a single interpolation. */
+@property --tint {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #e8192c;
+}
+
+:root {
+  --accent: #e8192c;
+  --accent-soft: rgba(232, 25, 44, 0.22);
+  --tint: var(--accent);
+  --text-scale: 1;
+  --afs: 14.5px;
+
+  --surface: color-mix(in oklab, var(--tint) 20%, #f7f4ed);
+  --surface-raised: #ffffff;
+  --surface-overlay: color-mix(in oklab, var(--tint) 13%, #efece4);
+  --ink: #101014;
+  --ink-dim: rgba(15, 15, 25, 0.58);
+  --ink-faint: rgba(15, 15, 25, 0.38);
+  --glass-bg: rgba(15, 15, 25, 0.06);
+  --glass-border: rgba(15, 15, 25, 0.12);
+  --nav: rgba(255, 255, 255, 0.82);
+}
+
+.dark {
+  --surface: color-mix(in oklab, var(--tint) 12%, #121016);
+  --surface-raised: color-mix(in oklab, var(--tint) 7%, #17151d);
+  --surface-overlay: color-mix(in oklab, var(--tint) 9%, #1f1c26);
+  --ink: #ffffff;
+  --ink-dim: rgba(255, 255, 255, 0.58);
+  --ink-faint: rgba(255, 255, 255, 0.38);
+  --glass-bg: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --nav: rgba(16, 14, 19, 0.72);
+}
+
+@supports not (background: color-mix(in oklab, red 10%, blue)) {
+  :root {
+    --surface: #f7f4ed;
+    --surface-overlay: #efece4;
+  }
+  .dark {
+    --surface: #121016;
+    --surface-raised: #17151d;
+    --surface-overlay: #1f1c26;
+  }
+}
+
+html,
+body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+html {
+  transition: --tint 0.6s ease;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-poppins), Poppins, system-ui, sans-serif;
+  font-size: calc(1rem * var(--text-scale));
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.allow-select {
+  user-select: text;
+}
+
+/* ---- Liquid glass ---- */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 4px 24px rgba(0, 0, 0, 0.18);
+}
+
+.glass-strong {
+  background: var(--surface-overlay);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(32px) saturate(1.8);
+  -webkit-backdrop-filter: blur(32px) saturate(1.8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* ---- Motion vocabulary (mirrors the design file's keyframes) ---- */
+@keyframes heart-pop {
+  0% { transform: scale(0); opacity: 0; }
+  30% { transform: scale(1.3); opacity: 1; }
+  55% { transform: scale(0.92); }
+  80% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+@keyframes spring-in {
+  0% { transform: scale(0.2) rotate(-10deg); opacity: 0; }
+  55% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+  78% { transform: scale(0.96) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes pop-in {
+  from { transform: scale(0) rotate(-10deg); opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes float-up {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+.animate-heart-pop { animation: heart-pop 0.75s ease both; }
+.animate-spring-in { animation: spring-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.animate-pop-in { animation: pop-in 0.45s both; }
+.animate-float-up { animation: float-up 1.8s ease-in-out infinite; }
+.animate-spin-slow { animation: spin-slow 30s linear infinite; }
+
+/* ---- Skeleton shimmer ---- */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(128, 128, 128, 0.12) 25%,
+    rgba(128, 128, 128, 0.24) 50%,
+    rgba(128, 128, 128, 0.12) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* ---- Scrollbars ---- */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+/* ---- Focus rings for keyboard nav ---- */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+
+/* ---- Reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* ---- Masonry ---- */
+.masonry {
+  column-count: 2;
+  column-gap: 0.75rem;
+}
+
+.masonry > * {
+  break-inside: avoid;
+  margin-bottom: 0.75rem;
+}
+
+/* ---- Utility: hide during drag ---- */
+.no-drag {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+/* ---- Safe areas (PWA / notch) ---- */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+}
+
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top), 0.5rem);
+}

@@ -1,0 +1,20 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "design-hub",
+      "runtimeExecutable": "C:\\Users\\shiaa\\nodejs\\node.exe",
+      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev", "-p", "3210"],
+      "port": 3210
+    },
+    {
+      "name": "iol-wire",
+      "runtimeExecutable": "cmd.exe",
+      "runtimeArgs": [
+        "/c",
+        "cd /d iol-wire && C:\\Users\\shiaa\\nodejs\\node.exe node_modules/next/dist/bin/next dev -p 3010"
+      ],
+      "port": 3010
+    }
+  ]
+}
