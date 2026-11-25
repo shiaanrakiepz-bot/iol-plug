@@ -12,7 +12,7 @@ export async function nativeShare(article: Article): Promise<boolean> {
       await navigator.share({
         title: article.title,
         text: article.summary,
-        url: `https://iol.co.za/wire/${article.id}`,
+        url: `https://iol.co.za/plug/${article.id}`,
       });
       return true;
     } catch (err) {

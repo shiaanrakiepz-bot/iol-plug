@@ -1,4 +1,5 @@
 import type { Article, Comment } from "@/types";
+import { WORLD_ARTICLES } from "./world";
 
 const V = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample";
 
@@ -57,7 +58,7 @@ export function posterUrl(
 type Seed = Omit<Article, "comments">;
 
 /**
- * Fictional demo copy written for the IOL Wire prototype — not real
+ * Fictional demo copy written for the IOL Plug prototype — not real
  * reporting. Videos are Google's public sample clips.
  */
 const SEEDS: Seed[] = [
@@ -607,10 +608,20 @@ const SEEDS: Seed[] = [
   },
 ];
 
-export const ARTICLES: Article[] = SEEDS.map((s) => ({
-  ...s,
-  comments: seedComments(s.id),
-}));
+/**
+ * IOL's own reporting, then the world wire. Both are Articles so every screen
+ * that already renders a story renders a scraped one for free; the only
+ * difference is `origin`, which suppresses outbound links and full text.
+ */
+export const ARTICLES: Article[] = [
+  ...SEEDS.map((s) => ({ ...s, comments: seedComments(s.id) })),
+  ...WORLD_ARTICLES,
+];
+
+/** True when a story came off the world wire rather than an IOL desk. */
+export function isWorld(a: Pick<Article, "origin">): boolean {
+  return a.origin === "world";
+}
 
 export const ARTICLE_MAP: Record<string, Article> = Object.fromEntries(
   ARTICLES.map((a) => [a.id, a])

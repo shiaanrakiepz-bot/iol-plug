@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import {
+  Briefcase,
+  ShieldCheck,
   Heart,
   Bookmark,
   History,
@@ -34,8 +36,13 @@ import {
   SectionLabel,
 } from "./shared";
 import { SettingsPages } from "./settings";
+import { Applications } from "./applications";
+import { Badge } from "./badge";
+import { WrappedCard } from "@/components/wrapped/wrapped-card";
+import { TodayPanel } from "@/components/progress/today-panel";
 import { DailyBrief } from "./brief";
 import { cn } from "@/lib/utils";
+import { Glyph, type GlyphName } from "@/components/icons/glyphs";
 
 export function Profile() {
   const page = useUI((s) => s.profilePage);
@@ -69,6 +76,8 @@ function ProfileRouter({ page }: { page: ProfilePage }) {
       return <DownloadsPage />;
     case "achievements":
       return <AchievementsPage />;
+    case "applications":
+      return <Applications />;
     case "brief":
       return <DailyBrief />;
     default:
@@ -102,6 +111,10 @@ function ProfileMain() {
     (a) => metricValue(stats, interests.length, a.metric) >= a.goal
   );
   const savedCount = savedIds(playlists).length;
+  const applicationCount = useContent((s) => s.applications.length);
+  const pendingReviews = useContent((s) => s.submissions.filter((x) => x.status === "pending").length);
+  const isReviewer = useSettings((s) => s.isReviewer);
+  const setAdmin = useUI((s) => s.setAdmin);
   const handle = isGuest
     ? "guest mode"
     : `@${(user?.name ?? "guest").toLowerCase().replace(/\s+/g, "")}`;
@@ -128,7 +141,7 @@ function ProfileMain() {
           <PillButton
             onPress={() =>
               isGuest
-                ? showToast("Sign up to edit your profile", "✏️")
+                ? showToast("Sign up to edit your profile", "pencil")
                 : setProfilePage("account")
             }
           >
@@ -138,7 +151,7 @@ function ProfileMain() {
             View profile
           </PillButton>
           <PillButton
-            onPress={() => showToast("Profile link copied", "🔗")}
+            onPress={() => showToast("Profile link copied", "link")}
           >
             Share
           </PillButton>
@@ -179,6 +192,12 @@ function ProfileMain() {
         <Stat label="Day streak" value={stats.streak} accent />
       </div>
 
+      <WrappedCard />
+
+      <div className="mt-4">
+        <TodayPanel />
+      </div>
+
       {/* library */}
       <SectionLabel>Your library</SectionLabel>
       <Group>
@@ -187,6 +206,7 @@ function ProfileMain() {
         <MenuRow icon={<History size={16} />} iconBg="#7CC4FF" label="History" detail={String(history.length)} onPress={() => setProfilePage("history")} />
         <MenuRow icon={<ListMusic size={16} />} iconBg="#D9A0FF" label="Playlists" detail={String(playlists.length)} onPress={() => setProfilePage("playlists")} />
         <MenuRow icon={<Download size={16} />} iconBg="#7CE0B3" label="Downloads" detail={String(downloads.length)} onPress={() => setProfilePage("downloads")} />
+        <MenuRow icon={<Briefcase size={16} />} iconBg="#6FBFFF" label="Applications" detail={String(applicationCount)} onPress={() => setProfilePage("applications")} />
         <MenuRow icon={<Trophy size={16} />} iconBg="#FFB35C" label="Achievements" detail={`${unlocked.length}/${ACHIEVEMENTS.length}`} onPress={() => setProfilePage("achievements")} />
       </Group>
 
@@ -290,6 +310,25 @@ function ProfileMain() {
         <MenuRow icon={<Shield size={16} />} label="Privacy" onPress={() => setProfilePage("privacy")} />
       </Group>
 
+      {/*
+        Staff only. The queue itself re-checks the flag, so hiding the row is
+        presentation rather than the access control.
+      */}
+      {isReviewer && (
+        <>
+          <SectionLabel>Newsroom</SectionLabel>
+          <Group>
+            <MenuRow
+              icon={<ShieldCheck size={16} />}
+              iconBg="#7CE0B3"
+              label="Review queue"
+              detail={pendingReviews ? String(pendingReviews) : undefined}
+              onPress={() => setAdmin(true)}
+            />
+          </Group>
+        </>
+      )}
+
       {/* account */}
       <SectionLabel>Account</SectionLabel>
       <Group>
@@ -297,7 +336,7 @@ function ProfileMain() {
       </Group>
 
       <p className="mt-[22px] text-center text-[10px] tracking-[1px] text-ink-dim">
-        IOL WIRE v1.0 · MADE IN SOUTH AFRICA
+        IOL PLUG v1.0 · MADE IN SOUTH AFRICA
       </p>
     </div>
   );
@@ -307,7 +346,7 @@ const QUALITY_LABEL = { auto: "Auto", low: "480p", high: "1080p" } as const;
 
 function Group({ children }: { children: React.ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-[20px] border border-[var(--glass-border)] bg-surface-raised [&>*+*]:border-t [&>*+*]:border-[var(--glass-border)]">
+    <div className="ios-group overflow-hidden rounded-[20px] border border-[var(--glass-border)] bg-surface-raised [--row-inset:16px]">
       {children}
     </div>
   );
@@ -402,7 +441,7 @@ function ListPage({
 }: {
   title: string;
   ids: string[];
-  empty: { emoji: string; title: string; text: string };
+  empty: { glyph: GlyphName; title: string; text: string };
   trailing?: (id: string) => React.ReactNode;
 }) {
   const setProfilePage = useUI((s) => s.setProfilePage);
@@ -432,7 +471,7 @@ function LikedPage() {
     <ListPage
       title="Liked stories"
       ids={liked}
-      empty={{ emoji: "💔", title: "No likes yet", text: "Swipe left on a story you love and it lands here." }}
+      empty={{ glyph: "heart", title: "No likes yet", text: "Swipe left on a story you love and it lands here." }}
       trailing={(id) => (
         <button onClick={() => toggleLike(id)} aria-label="Unlike" className="p-2 text-[#FF2E54]">
           <Heart size={18} fill="#FF2E54" />
@@ -460,7 +499,7 @@ function HistoryPage() {
             <button
               onClick={() => {
                 clearHistory();
-                showToast("History cleared", "🧹");
+                showToast("History cleared", "trash");
               }}
               className="text-[12.5px] font-bold text-iol-red"
             >
@@ -470,7 +509,7 @@ function HistoryPage() {
         }
       />
       {articles.length === 0 ? (
-        <EmptyState emoji="🕰️" title="Nothing here yet" text="Stories you open show up here so you can find them again." cta="Go to your feed" onCta={() => setTab("foryou")} />
+        <EmptyState glyph="clock" title="Nothing here yet" text="Stories you open show up here so you can find them again." cta="Go to your feed" onCta={() => setTab("foryou")} />
       ) : (
         <div className="mt-2 space-y-3">
           {articles.map((a) => (
@@ -489,7 +528,7 @@ function DownloadsPage() {
     <ListPage
       title="Downloads"
       ids={downloads}
-      empty={{ emoji: "📥", title: "No downloads", text: "Download stories from the reader and they'll work even offline." }}
+      empty={{ glyph: "download", title: "No downloads", text: "Download stories from the reader and they'll work even offline." }}
       trailing={(id) => (
         <button onClick={() => toggleDownload(id)} aria-label="Remove download" className="p-2 text-ink-faint">
           <Trash2 size={17} />
@@ -518,7 +557,7 @@ function PlaylistsPage() {
       <ListPage
         title="Read Later"
         ids={readLater}
-        empty={{ emoji: "⏰", title: "Nothing saved for later", text: "Hold a story card and tap Read Later to stash it here." }}
+        empty={{ glyph: "clock", title: "Nothing saved for later", text: "Hold a story card and tap Read Later to stash it here." }}
       />
     );
   }
@@ -529,14 +568,14 @@ function PlaylistsPage() {
     return (
       <div>
         <SubPageHeader
-          title={`${detail.emoji} ${detail.name}`}
+          title={detail.name}
           onBack={() => setPlaylistDetail(null)}
           action={
             <button
               onClick={() => {
                 deletePlaylist(detail.id);
                 setPlaylistDetail(null);
-                showToast("Playlist deleted", "🗑️");
+                showToast("Playlist deleted", "trash");
               }}
               aria-label="Delete playlist"
               className="p-2 text-iol-red"
@@ -546,7 +585,7 @@ function PlaylistsPage() {
           }
         />
         {articles.length === 0 ? (
-          <EmptyState emoji={detail.emoji} title="Empty playlist" text="Swipe down on a story in your feed to add it here." cta="Go to your feed" onCta={() => setTab("foryou")} />
+          <EmptyState glyph={detail.glyph} title="Empty playlist" text="Swipe down on a story in your feed to add it here." cta="Go to your feed" onCta={() => setTab("foryou")} />
         ) : (
           <div className="mt-2 space-y-3">
             {articles.map((a) => (
@@ -574,7 +613,7 @@ function PlaylistsPage() {
     <div>
       <SubPageHeader title="Playlists" onBack={() => setProfilePage("main")} />
       {playlists.length === 0 ? (
-        <EmptyState emoji="🎛️" title="No playlists yet" text="Swipe down on any story to create your first playlist." cta="Go to your feed" onCta={() => setTab("foryou")} />
+        <EmptyState glyph="archive" title="No playlists yet" text="Swipe down on any story to create your first playlist." cta="Go to your feed" onCta={() => setTab("foryou")} />
       ) : (
         <div className="mt-3 grid grid-cols-2 gap-3">
           {playlists.map((p) => {
@@ -594,7 +633,7 @@ function PlaylistsPage() {
                 )}
                 <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent 60%)" }} />
                 <div className="absolute inset-x-0 bottom-0 p-3.5">
-                  <span className="text-2xl" aria-hidden>{p.emoji}</span>
+                  <Glyph name={p.glyph} size={22} className="text-ink" />
                   <p className="text-[14px] font-bold text-white">{p.name}</p>
                   <p className="text-[11px] font-semibold text-white/70">
                     {p.articleIds.length} {p.articleIds.length === 1 ? "story" : "stories"}
@@ -634,9 +673,7 @@ function AchievementsPage() {
                 !done && "opacity-80"
               )}
             >
-              <span className={cn("text-3xl", !done && "grayscale opacity-50")} aria-hidden>
-                {a.emoji}
-              </span>
+              <Badge id={a.id} glyph={a.glyph} earned={done} size={60} />
               <p className="mt-2 text-[13.5px] font-bold text-ink">{a.title}</p>
               <p className="text-[11px] font-medium leading-snug text-ink-faint">{a.description}</p>
               <div className="mt-2.5 h-1.5 w-full rounded-full bg-ink/10">
@@ -646,7 +683,7 @@ function AchievementsPage() {
                 />
               </div>
               <p className="mt-1 text-[10.5px] font-bold text-ink-faint">
-                {done ? "Unlocked ✓" : `${Math.min(value, a.goal)}/${a.goal}`}
+                {done ? "Unlocked" : `${Math.min(value, a.goal)}/${a.goal}`}
               </p>
             </motion.div>
           );

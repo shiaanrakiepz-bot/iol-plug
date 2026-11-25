@@ -22,18 +22,18 @@ export function TopBar() {
 
   const shareApp = async () => {
     const data = {
-      title: "IOL Wire",
-      text: "News that actually gets you. Swipe it on IOL Wire.",
-      url: "https://iol.co.za/wire",
+      title: "IOL Plug",
+      text: "News that actually gets you. Swipe it on IOL Plug.",
+      url: "https://iol.co.za/plug",
     };
     try {
       if (navigator.share) {
         await navigator.share(data);
         bumpShares();
-        showToast("Shared", "📣");
+        showToast("Shared", "megaphone");
       } else {
         await navigator.clipboard.writeText(data.url);
-        showToast("Link copied", "🔗");
+        showToast("Link copied", "link");
       }
     } catch {
       /* user dismissed */
@@ -69,7 +69,7 @@ export function TopBar() {
         </div>
       )}
 
-      <GlassButton label="Share IOL Wire" onPress={shareApp}>
+      <GlassButton label="Share IOL Plug" onPress={shareApp}>
         <Share size={17} />
       </GlassButton>
     </div>
@@ -90,7 +90,7 @@ function GlassButton({
       whileTap={{ scale: 0.92 }}
       onClick={onPress}
       aria-label={label}
-      className="flex h-[42px] w-[42px] items-center justify-center rounded-full border border-white/[.26] text-ink backdrop-blur-[24px]"
+      className="lg lg-thin lg-press flex h-[42px] w-[42px] items-center justify-center rounded-full text-ink"
       style={{
         background:
           "linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.03))",

@@ -1,16 +1,16 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Vector recreation of the IOL Wire lockup: heavy IOL letterforms with the
- * signature red slash on the I, and spaced red WIRE wordmark beneath.
+ * Vector recreation of the IOL Plug lockup: heavy IOL letterforms with the
+ * signature red slash on the I, and spaced red PLUG wordmark beneath.
  */
 export function IolMark({
   className,
-  withWire = true,
+  withWordmark = true,
   mono = false,
 }: {
   className?: string;
-  withWire?: boolean;
+  withWordmark?: boolean;
   mono?: boolean;
 }) {
   const red = mono ? "currentColor" : "#E1131D";
@@ -20,7 +20,7 @@ export function IolMark({
       viewBox="0 0 400 360"
       className={cn("block", className)}
       role="img"
-      aria-label="IOL Wire"
+      aria-label="IOL Plug"
     >
       {/* I — red wedge + diagonally-cut white stem */}
       <polygon points="52,64 108,64 52,168" fill={red} />
@@ -41,7 +41,7 @@ export function IolMark({
         points="292,64 340,64 340,208 396,208 396,252 292,252"
         fill={white}
       />
-      {withWire && (
+      {withWordmark && (
         <text
           x="200"
           y="330"
@@ -52,7 +52,7 @@ export function IolMark({
             letterSpacing: "0.42em",
           }}
         >
-          WIRE
+          PLUG
         </text>
       )}
     </svg>

@@ -8,6 +8,7 @@ import { CATEGORY_MAP } from "@/data/categories";
 import { useSettings, useContent } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
 import { SubPageHeader } from "./shared";
+import { Glyph } from "@/components/icons/glyphs";
 
 /** AI Daily Brief — top stories picked from the user's interests. */
 export function DailyBrief() {
@@ -47,7 +48,7 @@ export function DailyBrief() {
       setListening(false);
       return;
     }
-    const script = `${greeting}. Here is your IOL Wire daily brief. ${picks
+    const script = `${greeting}. Here is your IOL Plug daily brief. ${picks
       .map((p, i) => `Story ${i + 1}: ${p.title}. ${p.tldr[0]}`)
       .join(" ")}`;
     const utter = new SpeechSynthesisUtterance(script);
@@ -100,7 +101,7 @@ export function DailyBrief() {
               <span className="text-[22px] font-black text-[var(--accent)]">{i + 1}</span>
               <div className="min-w-0 flex-1">
                 <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: cat.color }}>
-                  {cat.emoji} {cat.label}
+                  <Glyph name={cat.glyph} size={12} className="inline align-[-2px] mr-1" />{cat.label}
                 </span>
                 <p className="text-[14.5px] font-bold leading-snug text-ink">{a.title}</p>
                 <p className="mt-1 line-clamp-2 text-[12.5px] font-medium leading-snug text-ink-dim">

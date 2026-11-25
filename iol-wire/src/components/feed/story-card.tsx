@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 import type { Article } from "@/types";
 import { CATEGORY_MAP } from "@/data/categories";
-import { posterUrl } from "@/data/articles";
+import { posterUrl, isWorld } from "@/data/articles";
+import { Globe } from "lucide-react";
 import { useContent, savedIds, useSettings } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
 import { cn, vibrate } from "@/lib/utils";
@@ -69,7 +70,7 @@ export function StoryCard({
     const handled = await nativeShare(article);
     if (handled) {
       bumpShares();
-      showToast("Shared", "📣");
+      showToast("Shared", "megaphone");
     } else {
       openShare(article.id);
     }
@@ -136,6 +137,14 @@ export function StoryCard({
         >
           {cat.label.toUpperCase()}
         </span>
+        {/* Wire copy is labelled on the card, so its provenance is never a
+            surprise once you open it. */}
+        {isWorld(article) && (
+          <span className="flex items-center gap-1.5 rounded-pill bg-[rgba(111,191,255,.92)] px-3 py-[7px] text-[10px] font-bold tracking-wider text-[#06263d]">
+            <Globe size={11} />
+            WORLD
+          </span>
+        )}
       </div>
 
       {/* top-right: breaking + duration */}

@@ -2,6 +2,8 @@
 
 import type { Article } from "@/types";
 import { getAccount } from "@/data/accounts";
+import { isWorld } from "@/data/articles";
+import { Globe } from "lucide-react";
 import { useSettings } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
 import { cn } from "@/lib/utils";
@@ -28,11 +30,26 @@ export function Byline({
   const strong = tone === "onMedia" ? "text-white" : "text-ink";
 
   if (!account) {
+    /*
+      Wire copy must never wear the IOL mark. Putting our logo beside another
+      newsroom's name implies we reported it, which is the opposite of what the
+      world wire is for.
+    */
+    const world = isWorld(article);
     return (
       <div className={cn("flex items-center gap-2 text-[11px]", muted, className)}>
-        <span className="flex h-[21px] w-[21px] items-center justify-center rounded-[7px] bg-[var(--accent)] text-[8px] font-extrabold tracking-wide text-white">
-          IOL
-        </span>
+        {world ? (
+          <span
+            className="flex h-[21px] w-[21px] items-center justify-center rounded-[7px] bg-[#6FBFFF] text-[#06263d]"
+            aria-label="World wire"
+          >
+            <Globe size={12} />
+          </span>
+        ) : (
+          <span className="flex h-[21px] w-[21px] items-center justify-center rounded-[7px] bg-[var(--accent)] text-[8px] font-extrabold tracking-wide text-white">
+            IOL
+          </span>
+        )}
         <span className={cn("font-semibold", strong)}>{article.source}</span>
         <span className="opacity-50" aria-hidden>·</span>
         <span className="opacity-75">{article.publishedAt}</span>

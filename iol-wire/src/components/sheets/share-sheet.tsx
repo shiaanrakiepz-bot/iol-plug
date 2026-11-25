@@ -5,6 +5,7 @@ import { Sheet } from "./sheet";
 import { getArticle } from "@/data/articles";
 import { useContent } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
+import type { GlyphName } from "@/components/icons/glyphs";
 
 /** In-app fallback share sheet (used when the OS share sheet is unavailable). */
 export function ShareSheet({ articleId }: { articleId: string }) {
@@ -14,21 +15,21 @@ export function ShareSheet({ articleId }: { articleId: string }) {
   const bumpShares = useContent((s) => s.bumpShares);
 
   if (!article) return null;
-  const url = `https://iol.co.za/wire/${article.id}`;
+  const url = `https://iol.co.za/plug/${article.id}`;
   const close = () => openShare(null);
 
-  const done = (label: string, emoji: string) => {
+  const done = (label: string, glyph: GlyphName) => {
     bumpShares();
-    showToast(label, emoji);
+    showToast(label, glyph);
     close();
   };
 
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      done("Link copied", "🔗");
+      done("Link copied", "link");
     } catch {
-      showToast("Couldn't copy the link", "⚠️");
+      showToast("Couldn't copy the link", "alert");
     }
   };
 
@@ -42,7 +43,7 @@ export function ShareSheet({ articleId }: { articleId: string }) {
           `https://wa.me/?text=${encodeURIComponent(`${article.title} — ${url}`)}`,
           "_blank"
         );
-        done("Opening WhatsApp", "💬");
+        done("Opening WhatsApp", "opinion");
       },
     },
     {
@@ -54,7 +55,7 @@ export function ShareSheet({ articleId }: { articleId: string }) {
           `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(article.title)}`,
           "_blank"
         );
-        done("Opening Telegram", "✈️");
+        done("Opening Telegram", "travel");
       },
     },
     {
@@ -65,7 +66,7 @@ export function ShareSheet({ articleId }: { articleId: string }) {
         window.open(
           `mailto:?subject=${encodeURIComponent(article.title)}&body=${encodeURIComponent(`${article.summary}\n\n${url}`)}`
         );
-        done("Opening email", "✉️");
+        done("Opening email", "mail");
       },
     },
     {
@@ -78,7 +79,7 @@ export function ShareSheet({ articleId }: { articleId: string }) {
       icon: <QrCode size={22} />,
       label: "QR code",
       color: "#64748B",
-      onPress: () => showToast("QR sharing coming soon", "🔜"),
+      onPress: () => showToast("QR sharing coming soon", "clock"),
     },
   ];
 

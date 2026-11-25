@@ -17,7 +17,9 @@ import {
   Download,
 } from "lucide-react";
 import type { Article } from "@/types";
-import { getArticle, relatedArticles, posterUrl } from "@/data/articles";
+import { getArticle, relatedArticles, posterUrl, isWorld } from "@/data/articles";
+import { Globe, Brain } from "lucide-react";
+import { getQuiz } from "@/data/quizzes";
 import { CATEGORY_MAP } from "@/data/categories";
 import { useContent, useSettings, savedIds } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
@@ -69,7 +71,7 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
 
   const toggleListen = () => {
     if (!("speechSynthesis" in window)) {
-      showToast("Listening isn't supported in this browser", "🎧");
+      showToast("Listening isn't supported in this browser", "sound");
       return;
     }
     if (listening) {
@@ -84,20 +86,25 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
     utter.onend = () => setListening(false);
     window.speechSynthesis.speak(utter);
     setListening(true);
-    showToast("Reading aloud", "🎧");
+    showToast("Reading aloud", "sound");
   };
 
   const share = async () => {
     const handled = await nativeShare(article);
     if (handled) {
       bumpShares();
-      showToast("Shared", "📣");
+      showToast("Shared", "megaphone");
     } else {
       openShare(article.id);
     }
   };
 
   const isDownloaded = downloads.includes(article.id);
+  /** Scraped from an international outlet: summary only, and no link out. */
+  const world = isWorld(article);
+  const quiz = getQuiz(article.id);
+  const openQuiz = useUI((s) => s.openQuiz);
+  const quizPassed = useContent((s) => s.quizPassed.includes(article.id));
 
   return (
     <motion.div
@@ -129,7 +136,7 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
               whileTap={{ scale: 0.88 }}
               onClick={close}
               aria-label="Close article"
-              className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+              className="glass lg-press flex h-10 w-10 items-center justify-center rounded-full text-white"
             >
               <ChevronDown size={20} />
             </motion.button>
@@ -137,7 +144,7 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
               whileTap={{ scale: 0.88 }}
               onClick={share}
               aria-label="Share article"
-              className="glass flex h-10 w-10 items-center justify-center rounded-full text-white"
+              className="glass lg-press flex h-10 w-10 items-center justify-center rounded-full text-white"
             >
               <Share size={18} />
             </motion.button>
@@ -221,6 +228,23 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
             )}
           </AnimatePresence>
 
+          {/*
+            World stories say what they are, up front. The reader should never
+            have to wonder whether IOL reported this.
+          */}
+          {world && (
+            <div className="mt-6 flex items-start gap-3 rounded-3xl border border-[var(--glass-border)] bg-[var(--glass-bg)] p-4">
+              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#6FBFFF]/18 text-[#6FBFFF]">
+                <Globe size={16} />
+              </span>
+              <p className="text-[12.5px] leading-[1.55] text-ink-dim">
+                From the world wire, reported by{" "}
+                <span className="font-semibold text-ink">{article.source}</span>. IOL
+                has summarised it rather than republished it.
+              </p>
+            </div>
+          )}
+
           {/* body */}
           <div className="mt-6 space-y-5">
             {article.body.map((p, i) => (
@@ -236,6 +260,18 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
             ))}
           </div>
 
+          {/*
+            Deliberately not a link. We summarise world copy and stop there —
+            handing our readers to another publisher's site is the one thing
+            this feed does not do.
+          */}
+          {world && (
+            <p className="mt-5 text-[12px] leading-[1.55] text-ink-faint">
+              That is the whole of what we carry on this one. IOL summarises wire
+              stories and does not reproduce another newsroom's article.
+            </p>
+          )}
+
           {/* why this matters */}
           <div className="mt-8 rounded-3xl border-l-4 border-[var(--accent)] bg-[var(--accent)]/8 p-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--accent)]">
@@ -245,6 +281,43 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
               {article.whyItMatters}
             </p>
           </div>
+
+          {/*
+            Offered, not sprung. Interrupting someone mid-article to quiz them
+            is how you train people to close the reader; putting it at the end
+            makes taking it a choice, which is the only version worth passing.
+          */}
+          {quiz && (
+            <button
+              onClick={() => openQuiz(article.id)}
+              disabled={quizPassed}
+              className={cn(
+                "mt-8 flex w-full items-center gap-3.5 rounded-3xl border px-4 py-4 text-left transition-colors",
+                quizPassed
+                  ? "border-[#6EE087]/40 bg-[#6EE087]/10"
+                  : "border-[var(--glass-border)] bg-surface-raised active:bg-ink/5"
+              )}
+            >
+              <span
+                className={cn(
+                  "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
+                  quizPassed ? "bg-[#6EE087]/20 text-[#6EE087]" : "bg-[var(--accent)]/12 text-[var(--accent)]"
+                )}
+              >
+                <Brain size={18} />
+              </span>
+              <span className="flex-1">
+                <span className="block text-[14px] font-bold text-ink">
+                  {quizPassed ? "You got this one" : "Did you get it?"}
+                </span>
+                <span className="block text-[11.5px] leading-[1.45] text-ink-dim">
+                  {quizPassed
+                    ? "Check passed · +30 XP banked"
+                    : "One question. 30 XP if you follow the story."}
+                </span>
+              </span>
+            </button>
+          )}
 
           {/* timeline */}
           {article.timeline && (
@@ -281,7 +354,7 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
               toggleDownload(article.id);
               showToast(
                 isDownloaded ? "Removed from downloads" : "Saved for offline reading",
-                "⬇️"
+                "download"
               );
             }}
             className={cn(
@@ -333,7 +406,7 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
       </div>
 
       {/* sticky action bar */}
-      <div className="glass-strong absolute inset-x-4 bottom-4 flex items-center justify-around rounded-pill py-2.5 pb-safe">
+      <div className="glass-strong lg-refract lg-pill absolute inset-x-4 bottom-4 flex items-center justify-around rounded-pill py-2.5 pb-safe">
         <BarButton
           label={liked ? "Unlike" : "Like"}
           active={liked}
@@ -345,9 +418,11 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
         >
           <Heart size={21} fill={liked ? "#FF2E54" : "none"} />
         </BarButton>
-        <BarButton label="Comments" onPress={() => openComments(article.id)}>
-          <MessageCircle size={21} />
-        </BarButton>
+        {!world && (
+          <BarButton label="Comments" onPress={() => openComments(article.id)}>
+            <MessageCircle size={21} />
+          </BarButton>
+        )}
         <BarButton
           label="Save"
           active={saved}

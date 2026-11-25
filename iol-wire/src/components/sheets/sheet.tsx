@@ -37,7 +37,7 @@ export function Sheet({
         aria-modal="true"
         aria-label={title}
         className={cn(
-          "glass-strong relative w-full max-w-md rounded-t-[2rem] px-5 pb-8 pt-3 text-ink",
+          "glass-strong lg-refract relative w-full max-w-md rounded-t-[2rem] px-5 pb-8 pt-3 text-ink",
           className
         )}
         initial={{ y: "100%" }}

@@ -64,7 +64,7 @@ export function Splash() {
       className="fixed inset-0 z-[100] cursor-grab touch-none select-none bg-black active:cursor-grabbing"
       exit={{ opacity: 0, transition: { duration: 0.4, ease: "easeOut" } }}
       role="button"
-      aria-label="Swipe up to enter IOL Wire"
+      aria-label="Swipe up to enter IOL Plug"
       onPan={(_, info) => {
         if (leavingRef.current) return;
         setSnapping(false);
@@ -92,15 +92,15 @@ export function Splash() {
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <motion.img
-            src="/logo.jpeg"
-            alt="IOL Wire"
+            src="/plug-lockup.png"
+            alt="IOL Plug"
             draggable={false}
-            width={200}
-            height={200}
+            width={1525}
+            height={619}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1.4, ease: "easeOut" }}
-            className="pointer-events-none block h-[200px] w-[200px]"
+            className="pointer-events-none block h-auto w-[256px]"
           />
         </div>
 

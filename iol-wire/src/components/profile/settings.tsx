@@ -50,7 +50,7 @@ function SettingsMain() {
       <SubPageHeader title="Settings" onBack={() => setProfilePage("main")} />
 
       <SectionLabel>Personalise</SectionLabel>
-      <div className="rounded-3xl bg-surface-raised p-1.5 shadow-card">
+      <div className="ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
         <MenuRow icon={<Palette size={18} />} iconBg="#A855F7" label="Appearance" detail={settings.theme === "dark" ? "Dark" : "Light"} onPress={() => setProfilePage("appearance")} />
         <MenuRow icon={<Bell size={18} />} iconBg="#F59E0B" label="Notifications" onPress={() => setProfilePage("notifications")} />
         <MenuRow
@@ -62,21 +62,21 @@ function SettingsMain() {
             const idx = LANGUAGES.indexOf(settings.language);
             const next = LANGUAGES[(idx + 1) % LANGUAGES.length];
             settings.set("language", next);
-            showToast(`Language: ${next}`, "🌍");
+            showToast(`Language: ${next}`, "globe");
           }}
         />
         <MenuRow icon={<Accessibility size={18} />} iconBg="#22C55E" label="Accessibility" onPress={() => setProfilePage("accessibility")} />
       </div>
 
       <SectionLabel>Data & playback</SectionLabel>
-      <div className="rounded-3xl bg-surface-raised p-1.5 shadow-card">
+      <div className="ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
         <ToggleRow
           label="Data saver"
           detail="Lower-res images, no autoplay"
           value={settings.dataSaver}
           onChange={(v) => {
             settings.set("dataSaver", v);
-            showToast(v ? "Data saver on" : "Data saver off", "📶");
+            showToast(v ? "Data saver on" : "Data saver off", "wave");
           }}
         />
         <ToggleRow
@@ -96,7 +96,7 @@ function SettingsMain() {
             const order = ["auto", "high", "low"] as const;
             const next = order[(order.indexOf(settings.videoQuality) + 1) % 3];
             settings.set("videoQuality", next);
-            showToast(`Video quality: ${next}`, "🎞️");
+            showToast(`Video quality: ${next}`, "entertainment");
           }}
           className="flex w-full items-center gap-3.5 rounded-2xl px-3 py-3 text-left active:bg-ink/8"
         >
@@ -111,13 +111,13 @@ function SettingsMain() {
       </div>
 
       <SectionLabel>Account</SectionLabel>
-      <div className="rounded-3xl bg-surface-raised p-1.5 shadow-card">
-        <MenuRow icon={<ShieldCheck size={18} />} iconBg="#22C55E" label="Privacy" onPress={() => showToast("Your data stays on this device in the demo", "🔒")} />
+      <div className="ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
+        <MenuRow icon={<ShieldCheck size={18} />} iconBg="#22C55E" label="Privacy" onPress={() => showToast("Your data stays on this device in the demo", "lock")} />
         <MenuRow icon={<UserCog size={18} />} iconBg="#64748B" label="Manage account" onPress={() => setProfilePage("account")} />
       </div>
 
       <p className="mt-8 text-center text-[11px] font-semibold text-ink-faint">
-        IOL Wire · v1.0.0 · Made with ❤️ in South Africa
+        IOL Plug · v1.0.0 · Made with heart in South Africa
       </p>
     </div>
   );
@@ -214,7 +214,7 @@ function NotificationsPage() {
   return (
     <div>
       <SubPageHeader title="Notifications" onBack={() => setProfilePage("settings")} />
-      <div className="mt-3 rounded-3xl bg-surface-raised p-1.5 shadow-card">
+      <div className="mt-3 ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
         <ToggleRow label="Breaking news" detail="Big stories, the moment they break" value={notifications.breaking} onChange={(v) => setNotification("breaking", v)} />
         <ToggleRow label="Daily Brief" detail="Your personalised brief every morning at 7am" value={notifications.dailyBrief} onChange={(v) => setNotification("dailyBrief", v)} />
         <ToggleRow label="Followed topics" detail="New stories in topics you follow" value={notifications.followedTopics} onChange={(v) => setNotification("followedTopics", v)} />
@@ -227,13 +227,14 @@ function NotificationsPage() {
 /* ------------------------------------------------------------------ */
 function PrivacyPage() {
   const setProfilePage = useUI((s) => s.setProfilePage);
+  const showToast = useUI((s) => s.showToast);
   const settings = useSettings();
 
   return (
     <div>
       <SubPageHeader title="Privacy" onBack={() => setProfilePage("main")} />
 
-      <div className="mt-2 rounded-3xl bg-surface-raised p-1.5 shadow-card">
+      <div className="mt-2 ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
         <ToggleRow
           label="Personalised feed"
           detail="Use my activity to rank stories"
@@ -254,8 +255,26 @@ function PrivacyPage() {
         />
       </div>
 
+      {/*
+        Stands in for a role claim from the auth provider. It lives here so the
+        moderation flow can be demonstrated end to end; once there is a real
+        backend this switch goes away and the role comes off the session.
+      */}
+      <SectionLabel>Newsroom access</SectionLabel>
+      <div className="ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
+        <ToggleRow
+          label="Reviewer mode"
+          detail="Opens the moderation queue for user uploads"
+          value={settings.isReviewer}
+          onChange={(v) => {
+            settings.set("isReviewer", v);
+            showToast(v ? "Reviewer mode on" : "Reviewer mode off", v ? "shield" : "cross");
+          }}
+        />
+      </div>
+
       <p className="mt-3.5 px-1 text-[11px] leading-[1.6] text-ink-dim">
-        IOL Wire never sells your data. Your reading history stays on your
+        IOL Plug never sells your data. Your reading history stays on your
         device unless you sign in and enable sync. Read the full policy at
         iol.co.za/privacy.
       </p>
@@ -293,7 +312,7 @@ function AccessibilityPage() {
       </div>
 
       <SectionLabel>Motion</SectionLabel>
-      <div className="rounded-3xl bg-surface-raised p-1.5 shadow-card">
+      <div className="ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
         <ToggleRow
           label="Reduce motion"
           detail="Minimise animations across the app"
@@ -303,7 +322,7 @@ function AccessibilityPage() {
       </div>
 
       <SectionLabel>Data</SectionLabel>
-      <div className="rounded-3xl bg-surface-raised p-1.5 shadow-card">
+      <div className="ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
         <ToggleRow
           label={
             <span className="flex items-center gap-1.5">
@@ -316,7 +335,7 @@ function AccessibilityPage() {
         />
       </div>
       <p className="mt-3 px-2 text-[12px] font-medium leading-relaxed text-ink-faint">
-        IOL Wire supports screen readers, keyboard navigation and dynamic text out of the box. Every gesture also has a button alternative.
+        IOL Plug supports screen readers, keyboard navigation and dynamic text out of the box. Every gesture also has a button alternative.
       </p>
     </div>
   );
@@ -351,7 +370,7 @@ function AccountPage() {
         </span>
       </div>
 
-      <div className="mt-4 rounded-3xl bg-surface-raised p-1.5 shadow-card">
+      <div className="mt-4 ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
         <button onClick={logOut} className="flex w-full items-center gap-3.5 rounded-2xl px-3 py-3.5 text-left text-[14.5px] font-semibold text-ink active:bg-ink/8">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink/6"><LogOut size={18} /></span>
           Sign out
@@ -360,7 +379,7 @@ function AccountPage() {
           onClick={() => {
             if (!confirming) {
               setConfirming(true);
-              showToast("Tap again to confirm", "⚠️");
+              showToast("Tap again to confirm", "alert");
               return;
             }
             resetAll();

@@ -5,6 +5,7 @@ import { X, Zap } from "lucide-react";
 import { DRAWER_GENRES, CATEGORY_MAP } from "@/data/categories";
 import { useUI } from "@/lib/ui-store";
 import { cn, vibrate } from "@/lib/utils";
+import { Glyph } from "@/components/icons/glyphs";
 
 /** Left slide-in genre drawer. Picking a genre refilters the feed. */
 export function CategoryDrawer() {
@@ -19,11 +20,11 @@ export function CategoryDrawer() {
     setFeedGenre(genre);
     setTab("foryou");
     if (genre === "foryou") {
-      showToast("Back to your feed", "⚡");
+      showToast("Back to your feed", "bolt");
     } else if (genre === "following") {
-      showToast("Following lane", "✅");
+      showToast("Following lane", "check");
     } else {
-      showToast(`${CATEGORY_MAP[genre].label} lane`, CATEGORY_MAP[genre].emoji);
+      showToast(`${CATEGORY_MAP[genre].label} lane`, CATEGORY_MAP[genre].glyph);
     }
   };
 
@@ -41,7 +42,7 @@ export function CategoryDrawer() {
         onClick={() => setDrawer(false)}
       />
       <motion.div
-        className="glass-strong absolute bottom-0 left-0 top-0 flex w-[78%] max-w-xs flex-col rounded-r-[2rem] p-5 pt-safe"
+        className="glass-strong lg-refract absolute bottom-0 left-0 top-0 flex w-[78%] max-w-xs flex-col rounded-r-[2rem] p-5 pt-safe"
         initial={{ x: "-100%" }}
         animate={{ x: 0 }}
         exit={{ x: "-100%" }}
@@ -87,7 +88,7 @@ export function CategoryDrawer() {
                   active={feedGenre === id}
                   color={cat.color}
                   label={cat.label}
-                  emoji={<span aria-hidden>{cat.emoji}</span>}
+                  emoji={<Glyph name={cat.glyph} size={17} />}
                   onPress={() => pick(id)}
                 />
               </motion.div>

@@ -42,7 +42,7 @@ export function ContextSheet({ articleId }: { articleId: string }) {
       label: readLater ? "Remove from Read Later" : "Read Later",
       onPress: () => {
         toggleReadLater(articleId);
-        showToast(readLater ? "Removed from Read Later" : "Saved for later", "⏰");
+        showToast(readLater ? "Removed from Read Later" : "Saved for later", "clock");
         close();
       },
     },
@@ -53,7 +53,7 @@ export function ContextSheet({ articleId }: { articleId: string }) {
         toggleFollowTopic(article.category);
         showToast(
           following ? `Unfollowed ${cat.label}` : `Following ${cat.label}`,
-          cat.emoji
+          cat.glyph
         );
         close();
       },
@@ -79,7 +79,7 @@ export function ContextSheet({ articleId }: { articleId: string }) {
       label: "Not interested",
       onPress: () => {
         markNotInterested(articleId);
-        showToast("Got it — less of this", "👌");
+        showToast("Got it — less of this", "check");
         close();
       },
       danger: false,
@@ -89,7 +89,7 @@ export function ContextSheet({ articleId }: { articleId: string }) {
       label: "Report",
       onPress: () => {
         reportArticle(articleId);
-        showToast("Reported. Our team will review it.", "🚩");
+        showToast("Reported. Our team will review it.", "flag");
         close();
       },
       danger: true,

@@ -15,6 +15,13 @@ import { PlaylistSheet } from "@/components/sheets/playlist-sheet";
 import { ShareSheet } from "@/components/sheets/share-sheet";
 import { CommentsSheet } from "@/components/sheets/comments-sheet";
 import { AccountProfile } from "@/components/profile/account-profile";
+import { Build } from "@/components/build/build";
+import { OpportunitySheet } from "@/components/build/opportunity-sheet";
+import { CreateSheet } from "@/components/create/create-sheet";
+import { ReviewQueue } from "@/components/admin/review-queue";
+import { ComprehensionCheck } from "@/components/quiz/comprehension-check";
+import { Wrapped } from "@/components/wrapped/wrapped";
+import { useSettings } from "@/lib/store";
 
 export function AppShell() {
   const tab = useUI((s) => s.tab);
@@ -26,6 +33,12 @@ export function AppShell() {
   const commentsFor = useUI((s) => s.commentsFor);
   const drawerOpen = useUI((s) => s.drawerOpen);
   const viewingAccount = useUI((s) => s.viewingAccount);
+  const opportunityId = useUI((s) => s.opportunityId);
+  const createOpen = useUI((s) => s.createOpen);
+  const adminOpen = useUI((s) => s.adminOpen);
+  const quizFor = useUI((s) => s.quizFor);
+  const wrappedOpen = useUI((s) => s.wrappedOpen);
+  const isReviewer = useSettings((s) => s.isReviewer);
 
   return (
     <motion.div
@@ -46,6 +59,7 @@ export function AppShell() {
         transition={{ duration: 0.18, ease: "easeOut" }}
       >
         {tab === "foryou" && <Feed />}
+        {tab === "build" && <Build />}
         {tab === "explore" && <Explore />}
         {tab === "profile" && <Profile />}
       </motion.div>
@@ -65,6 +79,16 @@ export function AppShell() {
       <AnimatePresence>{playlistFor && <PlaylistSheet key="pl" articleId={playlistFor} />}</AnimatePresence>
       <AnimatePresence>{shareFor && <ShareSheet key="share" articleId={shareFor} />}</AnimatePresence>
       <AnimatePresence>{commentsFor && <CommentsSheet key="cm" articleId={commentsFor} />}</AnimatePresence>
+      <AnimatePresence>
+        {opportunityId && <OpportunitySheet key={`opp-${opportunityId}`} id={opportunityId} />}
+      </AnimatePresence>
+      <AnimatePresence>{createOpen && <CreateSheet key="create" />}</AnimatePresence>
+      <AnimatePresence>{wrappedOpen && <Wrapped key="wrapped" />}</AnimatePresence>
+      <AnimatePresence>
+        {quizFor && <ComprehensionCheck key={`quiz-${quizFor}`} articleId={quizFor} />}
+      </AnimatePresence>
+      {/* The queue is staff-only: the flag gates the render, not just the button. */}
+      <AnimatePresence>{adminOpen && isReviewer && <ReviewQueue key="admin" />}</AnimatePresence>
     </motion.div>
   );
 }

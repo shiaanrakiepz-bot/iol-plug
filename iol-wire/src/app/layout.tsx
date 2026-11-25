@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { PwaProvider } from "@/components/providers/pwa-provider";
+import { GlassFilters } from "@/components/providers/glass-filters";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -12,20 +13,20 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "IOL Wire — News that moves",
+  title: "IOL Plug — News that moves",
   description:
     "The future of news. Swipe through stories that matter, built on trusted IOL journalism.",
-  applicationName: "IOL Wire",
+  applicationName: "IOL Plug",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "IOL Wire",
+    title: "IOL Plug",
   },
   icons: {
     icon: [
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/plug-icon.png", sizes: "512x512", type: "image/png" },
+      
       { url: "/icon.svg", type: "image/svg+xml" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
@@ -58,6 +59,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-dvh overflow-x-hidden">
+        <GlassFilters />
         <ThemeProvider>{children}</ThemeProvider>
         <PwaProvider />
       </body>

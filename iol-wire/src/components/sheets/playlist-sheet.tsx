@@ -7,8 +7,9 @@ import { Sheet } from "./sheet";
 import { useContent } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
 import { cn, vibrate } from "@/lib/utils";
+import { Glyph, type GlyphName } from "@/components/icons/glyphs";
 
-const EMOJIS = ["🔥", "⚽", "🏎️", "🎧", "💼", "🧠", "✨", "📌"];
+const COVERS: GlyphName[] = ["flame", "football", "formula1", "sound", "business", "brain", "lifestyle", "pin"];
 
 /** Swipe-down target: pick a playlist or create the first one. */
 export function PlaylistSheet({ articleId }: { articleId: string }) {
@@ -21,15 +22,15 @@ export function PlaylistSheet({ articleId }: { articleId: string }) {
 
   const [creating, setCreating] = useState(playlists.length === 0);
   const [name, setName] = useState("");
-  const [emoji, setEmoji] = useState("🔥");
+  const [glyph, setGlyph] = useState<GlyphName>("flame");
 
   const close = () => openPlaylist(null);
 
   const create = () => {
     if (name.trim().length < 2) return;
-    createPlaylist(name.trim(), emoji, articleId);
+    createPlaylist(name.trim(), glyph, articleId);
     vibrate([8, 20, 8]);
-    showToast(`Saved to “${name.trim()}”`, emoji);
+    showToast(`Saved to “${name.trim()}”`, glyph);
     close();
   };
 
@@ -38,9 +39,7 @@ export function PlaylistSheet({ articleId }: { articleId: string }) {
       {creating ? (
         <div className="space-y-4">
           <div className="glass flex items-center gap-3 rounded-2xl px-4 py-3.5">
-            <span className="text-xl" aria-hidden>
-              {emoji}
-            </span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink/6 text-ink"><Glyph name={glyph} size={18} /></span>
             <input
               autoFocus
               value={name}
@@ -51,14 +50,14 @@ export function PlaylistSheet({ articleId }: { articleId: string }) {
             />
           </div>
           <div className="flex flex-wrap gap-2">
-            {EMOJIS.map((e) => (
+            {COVERS.map((e) => (
               <button
                 key={e}
-                onClick={() => setEmoji(e)}
-                aria-label={`Use ${e} emoji`}
+                onClick={() => setGlyph(e)}
+                aria-label={`Use the ${e} mark`}
                 className={cn(
                   "flex h-11 w-11 items-center justify-center rounded-xl text-xl transition-transform active:scale-90",
-                  emoji === e ? "bg-[var(--accent)]/20 ring-2 ring-[var(--accent)]" : "bg-ink/5"
+                  glyph === e ? "bg-[var(--accent)]/20 ring-2 ring-[var(--accent)]" : "bg-ink/5"
                 )}
               >
                 {e}
@@ -101,14 +100,14 @@ export function PlaylistSheet({ articleId }: { articleId: string }) {
                   } else {
                     addToPlaylist(p.id, articleId);
                     vibrate([8, 20, 8]);
-                    showToast(`Saved to “${p.name}”`, p.emoji);
+                    showToast(`Saved to “${p.name}”`, p.glyph);
                     close();
                   }
                 }}
                 className="flex w-full items-center gap-3.5 rounded-2xl px-4 py-3.5 text-left transition-colors active:bg-ink/10"
               >
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-ink/5 text-xl">
-                  {p.emoji}
+                  <Glyph name={p.glyph} size={20} />
                 </span>
                 <div className="flex-1">
                   <p className="text-[14.5px] font-bold">{p.name}</p>

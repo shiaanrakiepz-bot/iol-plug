@@ -13,10 +13,12 @@ import {
   Bookmark,
   Share,
   Sparkles,
+  Brain,
 } from "lucide-react";
 import type { Article } from "@/types";
 import { Byline } from "@/components/shared/byline";
 import { getArticle, posterUrl } from "@/data/articles";
+import { getQuiz } from "@/data/quizzes";
 import { CATEGORY_MAP } from "@/data/categories";
 import { useContent, savedIds, useSettings } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
@@ -75,7 +77,7 @@ export function VideoOverlay({ articleId }: { articleId: string }) {
     const handled = await nativeShare(article);
     if (handled) {
       bumpShares();
-      showToast("Shared", "📣");
+      showToast("Shared", "megaphone");
     } else {
       openShare(article.id);
     }
@@ -241,6 +243,13 @@ export function VideoOverlay({ articleId }: { articleId: string }) {
  * The written story, pulled up over the still-playing clip. Dragging it back
  * down returns you to the video.
  */
+/**
+ * Video stories get the same comprehension check as written ones.
+ *
+ * Leaving video out would have meant the format this audience actually
+ * prefers was the one that earned least — which would quietly push the
+ * reward system against the content strategy.
+ */
 function ArticleSheet({
   article,
   onClose,
@@ -249,6 +258,9 @@ function ArticleSheet({
   onClose: () => void;
 }) {
   const cat = CATEGORY_MAP[article.category];
+  const quiz = getQuiz(article.id);
+  const openQuiz = useUI((s) => s.openQuiz);
+  const quizPassed = useContent((s) => s.quizPassed.includes(article.id));
   return (
     <motion.div
       className="absolute inset-x-0 bottom-0 top-[18%] z-[8] flex flex-col overflow-hidden rounded-t-[28px] border-t border-[var(--glass-border)] bg-surface"
@@ -304,6 +316,38 @@ function ArticleSheet({
             {para}
           </p>
         ))}
+
+        {quiz && (
+          <button
+            onClick={() => openQuiz(article.id)}
+            disabled={quizPassed}
+            className={cn(
+              "mt-6 flex w-full items-center gap-3 rounded-[18px] border px-4 py-3.5 text-left transition-colors",
+              quizPassed
+                ? "border-[#6EE087]/40 bg-[#6EE087]/10"
+                : "border-[var(--glass-border)] bg-surface-raised active:bg-ink/5"
+            )}
+          >
+            <span
+              className={cn(
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
+                quizPassed
+                  ? "bg-[#6EE087]/20 text-[#6EE087]"
+                  : "bg-[var(--accent)]/12 text-[var(--accent)]"
+              )}
+            >
+              <Brain size={17} />
+            </span>
+            <span className="flex-1">
+              <span className="block text-[13.5px] font-bold text-ink">
+                {quizPassed ? "You got this one" : "Did you get it?"}
+              </span>
+              <span className="block text-[11px] leading-[1.4] text-ink-dim">
+                {quizPassed ? "Check passed · +30 XP banked" : "One question. 30 XP."}
+              </span>
+            </span>
+          </button>
+        )}
 
         <div className="mt-6 rounded-[18px] border border-[var(--glass-border)] bg-surface-raised p-4">
           <p className="text-[9.5px] font-bold uppercase tracking-[2px] text-[var(--accent)]">

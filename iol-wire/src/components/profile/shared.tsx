@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import type { Article } from "@/types";
@@ -7,21 +8,84 @@ import { posterUrl } from "@/data/articles";
 import { CATEGORY_MAP } from "@/data/categories";
 import { useUI } from "@/lib/ui-store";
 import { cn } from "@/lib/utils";
+import { Glyph, type GlyphName } from "@/components/icons/glyphs";
 
-export function SubPageHeader({ title, onBack, action }: { title: string; onBack: () => void; action?: React.ReactNode }) {
+/**
+ * iOS large-title navigation.
+ *
+ * The bar is always there, but it carries the title only once the large one
+ * has scrolled away — which is the detail that makes a page feel native
+ * rather than like a web page with a back button. The swap is driven by an
+ * IntersectionObserver on a sentinel under the large title, so there is no
+ * scroll handler running on every frame.
+ */
+export function SubPageHeader({
+  title,
+  onBack,
+  action,
+  subtitle,
+}: {
+  title: string;
+  onBack: () => void;
+  action?: React.ReactNode;
+  subtitle?: string;
+}) {
+  const sentinel = useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const el = sentinel.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setCollapsed(!e.isIntersecting), {
+      // The bar is 52px tall; trip the swap exactly as the title passes under it.
+      rootMargin: "-52px 0px 0px 0px",
+      threshold: 0,
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className="sticky top-0 z-10 -mx-4 flex items-center gap-3 bg-surface/85 px-4 py-3 backdrop-blur-xl">
-      <motion.button
-        whileTap={{ scale: 0.88 }}
-        onClick={onBack}
-        aria-label="Back"
-        className="glass flex h-9 w-9 items-center justify-center rounded-full text-ink"
+    <>
+      <div
+        className={cn(
+          "sticky top-0 z-20 -mx-4 flex h-[52px] items-center gap-3 px-4 transition-[background-color,box-shadow] duration-200",
+          collapsed
+            ? "bg-surface/80 shadow-[0_0.5px_0_0_var(--glass-border)] backdrop-blur-xl"
+            : "bg-transparent"
+        )}
       >
-        <ChevronLeft size={18} />
-      </motion.button>
-      <h2 className="flex-1 text-[17px] font-bold tracking-tight text-ink">{title}</h2>
-      {action}
-    </div>
+        <motion.button
+          whileTap={{ scale: 0.88 }}
+          onClick={onBack}
+          aria-label="Back"
+          className="-ml-1.5 flex items-center gap-0.5 text-[var(--accent)]"
+        >
+          <ChevronLeft size={24} strokeWidth={2.4} />
+          <span className="text-[16px] font-medium">Back</span>
+        </motion.button>
+
+        {/* Centred compact title, iOS-style: fades in as the large one leaves. */}
+        <h2
+          className={cn(
+            "pointer-events-none absolute inset-x-16 text-center text-[16px] font-semibold tracking-[-0.01em] text-ink transition-all duration-200",
+            collapsed ? "translate-y-0 opacity-100" : "translate-y-1.5 opacity-0"
+          )}
+        >
+          {title}
+        </h2>
+
+        <span className="ml-auto">{action}</span>
+      </div>
+
+      <h1 className="mt-1 text-[34px] font-extrabold leading-[1.08] tracking-[-0.025em] text-ink">
+        {title}
+      </h1>
+      {subtitle && (
+        <p className="mt-1 text-[13.5px] font-medium leading-snug text-ink-dim">{subtitle}</p>
+      )}
+      <div ref={sentinel} aria-hidden className="h-px" />
+    </>
   );
 }
 
@@ -77,7 +141,7 @@ export function MenuRow({
   return (
     <button
       onClick={onPress}
-      className="flex w-full items-center gap-3.5 rounded-2xl px-3 py-3 text-left transition-colors active:bg-ink/8"
+      className="flex w-full items-center gap-3.5 rounded-2xl px-3 py-3 text-left transition-colors active:bg-ink/8 [--row-inset:66px]"
     >
       <span
         className={cn(
@@ -135,10 +199,12 @@ export function ToggleRow({
   );
 }
 
-export function EmptyState({ emoji, title, text, cta, onCta }: { emoji: string; title: string; text: string; cta?: string; onCta?: () => void }) {
+export function EmptyState({ glyph, title, text, cta, onCta }: { glyph: GlyphName; title: string; text: string; cta?: string; onCta?: () => void }) {
   return (
     <div className="mt-16 flex flex-col items-center text-center">
-      <span className="text-5xl" aria-hidden>{emoji}</span>
+      <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-ink/6 text-ink-dim">
+        <Glyph name={glyph} size={30} strokeWidth={1.5} />
+      </span>
       <h3 className="mt-4 text-lg font-bold text-ink">{title}</h3>
       <p className="mt-1 max-w-[250px] text-[13px] font-medium leading-relaxed text-ink-dim">{text}</p>
       {cta && onCta && (

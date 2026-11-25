@@ -270,7 +270,7 @@ function CardStack({
           burst();
           vibrate([10, 30, 10]);
         } else {
-          showToast("Already in your likes", "❤️");
+          showToast("Already in your likes", "heart");
         }
       }
       snapBack();
@@ -283,7 +283,7 @@ function CardStack({
       const handled = await nativeShare(article);
       if (handled) {
         bumpShares();
-        showToast("Shared", "📣");
+        showToast("Shared", "megaphone");
       } else {
         openShare(article.id);
       }

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUI } from "@/lib/ui-store";
+import { Glyph } from "@/components/icons/glyphs";
 
 export function Toast() {
   const toast = useUI((s) => s.toast);
@@ -29,8 +30,8 @@ export function Toast() {
           className="pointer-events-none fixed left-1/2 top-16 z-[110] -translate-x-1/2"
           role="status"
         >
-          <div className="glass-strong flex items-center gap-2 rounded-pill px-5 py-3 text-[13.5px] font-bold text-ink shadow-lift">
-            {toast.emoji && <span aria-hidden>{toast.emoji}</span>}
+          <div className="glass-strong lg-refract lg-pill flex items-center gap-2 rounded-pill px-5 py-3 text-[13.5px] font-bold text-ink shadow-lift">
+            {toast.glyph && <Glyph name={toast.glyph} size={16} />}
             {toast.message}
           </div>
         </motion.div>

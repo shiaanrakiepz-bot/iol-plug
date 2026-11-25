@@ -108,7 +108,7 @@ export function PwaProvider() {
           transition={{ type: "spring", stiffness: 320, damping: 30 }}
           className="fixed inset-x-4 bottom-[92px] z-[95] mx-auto flex max-w-md items-center gap-3 rounded-[20px] border border-[var(--glass-border)] bg-surface-overlay px-4 py-3 shadow-lift backdrop-blur-xl"
           role="dialog"
-          aria-label="Install IOL Wire"
+          aria-label="Install IOL Plug"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -117,7 +117,7 @@ export function PwaProvider() {
             className="h-10 w-10 shrink-0 rounded-[12px]"
           />
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-bold text-ink">Add IOL Wire to your home screen</p>
+            <p className="text-[13px] font-bold text-ink">Add IOL Plug to your home screen</p>
             <p className="text-[11px] text-ink-dim">Opens fullscreen, works offline.</p>
           </div>
           <button

@@ -72,14 +72,14 @@ function AuthStep({ onDone }: { onDone: (user: UserProfile) => void }) {
         : email.split("@")[0].replace(/[^a-zA-Z ]/g, " ").trim();
     const finalName = capitalize(displayName) || "Shi-Aan";
     if (mode === "signup") {
-      showToast(`Welcome to the wire, ${finalName.split(" ")[0]}`, "🎉");
+      showToast(`Welcome to the wire, ${finalName.split(" ")[0]}`, "spark");
     }
     onDone({ name: finalName, email, method: "email" });
   };
 
   const social = (method: "google" | "apple") => {
     vibrate(6);
-    showToast(`Signed in with ${method === "google" ? "Google" : "Apple"}`, "✅");
+    showToast(`Signed in with ${method === "google" ? "Google" : "Apple"}`, "check");
     onDone({
       name: "Shi-Aan",
       email: `shiaan@${method === "google" ? "gmail" : "icloud"}.com`,
@@ -97,8 +97,8 @@ function AuthStep({ onDone }: { onDone: (user: UserProfile) => void }) {
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/logo.jpeg"
-        alt="IOL Wire"
+        src="/plug-icon.png"
+        alt="IOL Plug"
         className={cn(
           "mx-auto block rounded-[18px]",
           mode === "signin" ? "animate-spring-in h-20 w-20" : "h-16 w-16"
@@ -196,14 +196,14 @@ function AuthStep({ onDone }: { onDone: (user: UserProfile) => void }) {
 
         {mode === "signin" ? (
           <button
-            onClick={() => showToast("Reset link sent — check your inbox", "📧")}
+            onClick={() => showToast("Reset link sent — check your inbox", "mail")}
             className="p-1 text-center text-[12px] text-white/55 hover:text-white"
           >
             Forgot password?
           </button>
         ) : (
           <p className="px-3 text-center text-[10.5px] leading-[1.6] text-white/35">
-            By continuing you agree to IOL Wire&apos;s Terms of Service and
+            By continuing you agree to IOL Plug&apos;s Terms of Service and
             Privacy Policy.
           </p>
         )}
@@ -224,7 +224,7 @@ function AuthStep({ onDone }: { onDone: (user: UserProfile) => void }) {
       <p className="mt-4 text-center text-[12px] text-white/45">
         {mode === "signin" ? (
           <>
-            New to IOL Wire?{" "}
+            New to IOL Plug?{" "}
             <button
               className="font-semibold text-[var(--accent)]"
               onClick={() => {
@@ -274,7 +274,7 @@ function InterestsStep({ user }: { user: UserProfile }) {
     if (!ready) return;
     completeOnboarding(user, selected);
     setPhase("app");
-    showToast(`Feed tuned for you, ${user.name.split(" ")[0]}`, "🎯");
+    showToast(`Feed tuned for you, ${user.name.split(" ")[0]}`, "target");
   };
 
   const label = ready
