@@ -16,6 +16,7 @@ import type { Submission, SubmissionKind, SubmissionStatus } from "@/types";
 import { useContent } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
 import { cn, vibrate } from "@/lib/utils";
+import { Segmented } from "@/components/ui/segmented";
 
 const KIND_ICON: Record<SubmissionKind, React.ReactNode> = {
   reel: <FileVideo size={15} />,
@@ -197,23 +198,22 @@ export function ReviewQueue() {
         </div>
       </div>
 
-      <div className="flex gap-2 px-4 pb-3">
-        {(["pending", "approved", "rejected"] as SubmissionStatus[]).map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            aria-pressed={filter === s}
-            className={cn(
-              "flex-1 rounded-pill border px-3 py-2.5 text-[11.5px] font-semibold capitalize transition-colors",
-              filter === s
-                ? "border-transparent bg-ink text-surface"
-                : "border-[var(--glass-border)] bg-[var(--glass-bg)] text-ink-dim"
-            )}
-          >
-            {s}
-            <span className="ml-1.5 tabular-nums opacity-55">{counts[s]}</span>
-          </button>
-        ))}
+      <div className="px-4 pb-3">
+        <Segmented
+          layoutGroupId="review-filter"
+          value={filter}
+          onChange={setFilter}
+          segments={(["pending", "approved", "rejected"] as SubmissionStatus[]).map((s) => ({
+            id: s,
+            label: (
+              <span className="flex items-center gap-1.5 capitalize">
+                {s}
+                <span className="tabular-nums opacity-55">{counts[s]}</span>
+              </span>
+            ),
+            srLabel: `${s}, ${counts[s]}`,
+          }))}
+        />
       </div>
 
       <div className="flex flex-col gap-3 px-4 pb-10">

@@ -23,9 +23,13 @@
   --text-scale: 1;
   --afs: 14.5px;
 
-  --surface: color-mix(in oklab, var(--tint) 20%, #f7f4ed);
+  /* Light mode is a near-neutral grouped background with only a trace of
+     brand warmth. At 20% the accent turned the whole app pink, which read as
+     a theme rather than as a surface; iOS keeps this layer almost grey so
+     the content and the accent are the only colour on screen. */
+  --surface: color-mix(in oklab, var(--tint) 4%, #f2f1f5);
   --surface-raised: #ffffff;
-  --surface-overlay: color-mix(in oklab, var(--tint) 13%, #efece4);
+  --surface-overlay: color-mix(in oklab, var(--tint) 3%, #ffffff);
   --ink: #101014;
   --ink-dim: rgba(15, 15, 25, 0.58);
   --ink-faint: rgba(15, 15, 25, 0.38);
@@ -329,4 +333,19 @@ body {
   transform-origin: top;
   background: var(--glass-border);
   pointer-events: none;
+}
+
+/* ---- iOS segmented control ----
+   The track and thumb are deliberately neutral. iOS uses a translucent grey
+   groove with a raised surface sliding inside it; tinting either with the
+   brand colour makes every option look like the primary action. ---- */
+:root{
+  --seg-track: rgba(118,118,128,.24);
+  --seg-thumb: #5A5A60;
+  --seg-divider: rgba(255,255,255,.22);
+}
+:root:not(.dark){
+  --seg-track: rgba(118,118,128,.12);
+  --seg-thumb: #ffffff;
+  --seg-divider: rgba(60,60,67,.24);
 }

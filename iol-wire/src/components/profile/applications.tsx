@@ -10,6 +10,7 @@ import { useContent } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
 import { cn } from "@/lib/utils";
 import { SubPageHeader, EmptyState } from "./shared";
+import { Segmented } from "@/components/ui/segmented";
 
 const STATUS_COLOR: Record<ApplicationStatus, string> = {
   Saved: "#FFD166",
@@ -71,25 +72,23 @@ export function Applications() {
     <div>
       <SubPageHeader title="Applications" onBack={() => setProfilePage("main")} />
 
-      <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
-        {VIEWS.map((v) => (
-          <button
-            key={v.id}
-            onClick={() => setView(v.id)}
-            aria-pressed={view === v.id}
-            className={cn(
-              "flex shrink-0 items-center gap-1.5 rounded-pill border px-[14px] py-[9px] text-[11.5px] font-semibold transition-colors",
-              view === v.id
-                ? "border-transparent bg-ink text-surface"
-                : "border-[var(--glass-border)] bg-[var(--glass-bg)] text-ink-dim"
-            )}
-          >
-            {v.icon}
-            {v.label}
-            <span className="tabular-nums opacity-55">{counts[v.id]}</span>
-          </button>
-        ))}
-      </div>
+      <Segmented
+        className="mt-3"
+        size="sm"
+        layoutGroupId="applications-view"
+        value={view}
+        onChange={setView}
+        segments={VIEWS.map((v) => ({
+          id: v.id,
+          label: (
+            <span className="flex items-center gap-1">
+              {v.label}
+              <span className="tabular-nums opacity-55">{counts[v.id]}</span>
+            </span>
+          ),
+          srLabel: `${v.label}, ${counts[v.id]}`,
+        }))}
+      />
 
       {rows.length === 0 ? (
         <EmptyState

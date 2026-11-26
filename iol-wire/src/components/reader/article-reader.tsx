@@ -24,6 +24,7 @@ import { CATEGORY_MAP } from "@/data/categories";
 import { useContent, useSettings, savedIds } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
 import { cn, vibrate } from "@/lib/utils";
+import { useEdgeSwipeBack } from "@/lib/use-edge-swipe-back";
 import { nativeShare } from "@/lib/share";
 import { Byline } from "@/components/shared/byline";
 
@@ -105,15 +106,17 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
   const quiz = getQuiz(article.id);
   const openQuiz = useUI((s) => s.openQuiz);
   const quizPassed = useContent((s) => s.quizPassed.includes(article.id));
+  const swipe = useEdgeSwipeBack(close);
 
   return (
     <motion.div
-      className="fixed inset-0 z-[60] bg-surface"
+      className="fixed inset-0 z-[60]"
       initial={{ y: "8%", opacity: 0, scale: 0.98 }}
       animate={{ y: 0, opacity: 1, scale: 1 }}
       exit={{ y: "100%", opacity: 0.6 }}
       transition={{ type: "spring", stiffness: 320, damping: 32 }}
     >
+    <div className="h-full bg-surface" style={swipe.style}>
       <div ref={scrollRef} className="h-full overflow-y-auto overscroll-contain pb-28">
         {/* hero */}
         <div className="relative h-[42dvh] min-h-[280px] w-full overflow-hidden">
@@ -435,6 +438,7 @@ function ReaderInner({ article, close }: { article: Article; close: () => void }
           <Share size={21} />
         </BarButton>
       </div>
+    </div>
     </motion.div>
   );
 }

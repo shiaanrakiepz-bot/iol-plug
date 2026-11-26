@@ -17,6 +17,7 @@ import { TYPE_COLOR, closingLabel, daysUntilClose, getOpportunity } from "@/data
 import { useContent } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
 import { cn, vibrate } from "@/lib/utils";
+import { Segmented } from "@/components/ui/segmented";
 
 type Tab = "about" | "requirements" | "benefits";
 
@@ -59,8 +60,8 @@ export function OpportunitySheet({ id }: { id: string }) {
   };
 
   return (
-    <Sheet onClose={() => close(null)} className="max-h-[86dvh] overflow-y-auto">
-      <div className="relative -mx-5 -mt-3 h-[150px] overflow-hidden">
+    <Sheet onClose={() => close(null)} detents={[0.62, 0.94]}>
+      <div className="relative -mx-5 -mt-1 h-[150px] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={opp.image ?? imageUrl(opp.imageSeed, 800, 500)}
@@ -133,21 +134,13 @@ export function OpportunitySheet({ id }: { id: string }) {
           </p>
         )}
 
-        <div className="mt-5 flex gap-1 rounded-2xl bg-[var(--glass-bg)] p-1">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              aria-pressed={tab === t.id}
-              className={cn(
-                "flex-1 rounded-xl py-2 text-[11.5px] font-semibold transition-colors duration-200",
-                tab === t.id ? "bg-[var(--accent)] text-white" : "text-ink-dim"
-              )}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          className="mt-5"
+          layoutGroupId="opportunity-tabs"
+          value={tab}
+          onChange={setTab}
+          segments={TABS.map((t) => ({ id: t.id, label: t.label }))}
+        />
 
         <div className="mt-4 min-h-[128px]">
           {list ? (

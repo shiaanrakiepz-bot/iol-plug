@@ -10,6 +10,12 @@ import { useUI } from "@/lib/ui-store";
 import { cn, vibrate } from "@/lib/utils";
 import { SwipeStack } from "./swipe-stack";
 
+/** "Bursary" pluralises to "Bursaries", not "Bursarys". */
+function plural(t: string) {
+  if (t === "All") return "All";
+  return /[^aeiou]y$/.test(t) ? t.slice(0, -1) + "ies" : t + "s";
+}
+
 export function Build() {
   const [filter, setFilter] = useState<OpportunityType | "All">("All");
   const swipes = useContent((s) => s.swipes);
@@ -73,7 +79,7 @@ export function Build() {
                   : "border-[var(--glass-border)] bg-[var(--glass-bg)] text-ink"
               )}
             >
-              {t === "All" ? "All" : t + "s"}
+              {plural(t)}
               <span className={cn("ml-1.5 tabular-nums", active ? "opacity-55" : "opacity-45")}>
                 {n}
               </span>

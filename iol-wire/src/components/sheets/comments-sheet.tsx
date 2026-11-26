@@ -33,8 +33,34 @@ export function CommentsSheet({ articleId }: { articleId: string }) {
   };
 
   return (
-    <Sheet onClose={close} title={`${total} comment${total === 1 ? "" : "s"}`} className="max-h-[78dvh]">
-      <div className="max-h-[48dvh] space-y-4 overflow-y-auto pb-3">
+    <Sheet onClose={close} title={`${total} comment${total === 1 ? "" : "s"}`} detents={[0.58, 0.92]}
+      footer={
+        <div className="flex items-center gap-2 border-t border-ink/10 pt-4">
+        <div className="glass flex flex-1 items-center rounded-pill px-4 py-2.5">
+          <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && send()}
+            placeholder="Add a comment…"
+            className="w-full bg-transparent text-[14px] font-medium text-ink placeholder:text-ink-faint focus:outline-none allow-select"
+          />
+        </div>
+        <motion.button
+          whileTap={{ scale: 0.85 }}
+          onClick={send}
+          disabled={!draft.trim()}
+          aria-label="Post comment"
+          className={cn(
+            "flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors",
+            draft.trim() ? "bg-[var(--accent)]" : "bg-ink/15"
+          )}
+        >
+          <SendHorizontal size={18} />
+        </motion.button>
+        </div>
+      }
+    >
+      <div className="space-y-4 pb-3">
         {myComments.map((c) => (
           <CommentRow
             key={c.id}
@@ -70,29 +96,6 @@ export function CommentsSheet({ articleId }: { articleId: string }) {
         ))}
       </div>
 
-      <div className="mt-2 flex items-center gap-2 border-t border-ink/10 pt-4">
-        <div className="glass flex flex-1 items-center rounded-pill px-4 py-2.5">
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && send()}
-            placeholder="Add a comment…"
-            className="w-full bg-transparent text-[14px] font-medium text-ink placeholder:text-ink-faint focus:outline-none allow-select"
-          />
-        </div>
-        <motion.button
-          whileTap={{ scale: 0.85 }}
-          onClick={send}
-          disabled={!draft.trim()}
-          aria-label="Post comment"
-          className={cn(
-            "flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors",
-            draft.trim() ? "bg-[var(--accent)]" : "bg-ink/15"
-          )}
-        >
-          <SendHorizontal size={18} />
-        </motion.button>
-      </div>
     </Sheet>
   );
 }

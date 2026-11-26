@@ -42,13 +42,35 @@ import { WrappedCard } from "@/components/wrapped/wrapped-card";
 import { TodayPanel } from "@/components/progress/today-panel";
 import { DailyBrief } from "./brief";
 import { cn } from "@/lib/utils";
+import { useEdgeSwipeBack } from "@/lib/use-edge-swipe-back";
+import { Segmented } from "@/components/ui/segmented";
 import { Glyph, type GlyphName } from "@/components/icons/glyphs";
+
+/**
+ * Where the back chevron goes from each page. The settings children pop to
+ * Settings; everything else pops to the profile root. Keeping it here means
+ * the edge gesture and the chevron can never disagree.
+ */
+const BACK_TO: Partial<Record<ProfilePage, ProfilePage>> = {
+  notifications: "settings",
+  appearance: "settings",
+  accessibility: "settings",
+  privacy: "settings",
+  account: "settings",
+};
 
 export function Profile() {
   const page = useUI((s) => s.profilePage);
+  const setProfilePage = useUI((s) => s.setProfilePage);
+
+  const back = page === "main" ? null : () => setProfilePage(BACK_TO[page] ?? "main");
+  const swipe = useEdgeSwipeBack(back);
 
   return (
-    <div className="absolute inset-x-0 bottom-[86px] top-[60px] overflow-y-auto overscroll-contain px-4 pb-6">
+    <div
+      className="absolute inset-x-0 bottom-[86px] top-[60px] overflow-y-auto overscroll-contain px-4 pb-6"
+      style={swipe.style}
+    >
       <motion.div
         key={page}
         initial={{ opacity: 0, x: 24 }}
@@ -213,23 +235,15 @@ function ProfileMain() {
       {/* appearance */}
       <SectionLabel>Appearance</SectionLabel>
       <div className="flex flex-col gap-3.5 rounded-[20px] border border-[var(--glass-border)] bg-surface-raised px-4 py-3.5">
-        <div className="flex gap-[3px] rounded-2xl bg-[var(--glass-bg)] p-[3px]">
-          {(["dark", "light"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => settings.set("theme", t)}
-              aria-pressed={settings.theme === t}
-              className={cn(
-                "flex-1 rounded-[11px] py-2 text-center text-[12.5px] font-semibold capitalize transition-all duration-250",
-                settings.theme === t
-                  ? "bg-[var(--accent)] text-white"
-                  : "text-ink-dim"
-              )}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          layoutGroupId="profile-theme"
+          value={settings.theme}
+          onChange={(t) => settings.set("theme", t)}
+          segments={[
+            { id: "dark" as const, label: "Dark" },
+            { id: "light" as const, label: "Light" },
+          ]}
+        />
 
         <div className="flex items-center justify-between">
           <span className="text-[13px] font-semibold text-ink">Accent colour</span>
@@ -257,23 +271,18 @@ function ProfileMain() {
 
         <div className="flex items-center justify-between">
           <span className="text-[13px] font-semibold text-ink">Text size</span>
-          <div className="flex gap-[3px] rounded-xl bg-[var(--glass-bg)] p-[3px]">
-            {TEXT_SIZES.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => settings.set("textSize", s.id)}
-                aria-pressed={settings.textSize === s.id}
-                className={cn(
-                  "rounded-[11px] px-3.5 py-1.5 text-[11px] font-semibold transition-all duration-200",
-                  settings.textSize === s.id
-                    ? "bg-[var(--accent)] text-white"
-                    : "text-ink-dim"
-                )}
-              >
-                {s.id}
-              </button>
-            ))}
-          </div>
+          <Segmented
+            className="w-[132px]"
+            size="sm"
+            layoutGroupId="profile-textsize"
+            value={settings.textSize}
+            onChange={(id) => settings.set("textSize", id)}
+            segments={TEXT_SIZES.map((t) => ({
+              id: t.id,
+              label: t.id,
+              srLabel: { S: "Small", M: "Medium", L: "Large" }[t.id],
+            }))}
+          />
         </div>
       </div>
 

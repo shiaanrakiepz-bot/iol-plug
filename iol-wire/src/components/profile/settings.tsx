@@ -21,6 +21,7 @@ import { useSettings, useContent, ACCENTS, LANGUAGES, TEXT_SIZES } from "@/lib/s
 import { useUI, type ProfilePage } from "@/lib/ui-store";
 import { SubPageHeader, MenuRow, ToggleRow, SectionLabel } from "./shared";
 import { cn, vibrate } from "@/lib/utils";
+import { Segmented } from "@/components/ui/segmented";
 
 export function SettingsPages({ page }: { page: ProfilePage }) {
   switch (page) {
@@ -292,23 +293,19 @@ function AccessibilityPage() {
       <SubPageHeader title="Accessibility" onBack={() => setProfilePage("settings")} />
 
       <SectionLabel>Text size</SectionLabel>
-      <div className="flex gap-2 rounded-3xl bg-surface-raised p-3 shadow-card">
-        {TEXT_SIZES.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => settings.set("textSize", s.id)}
-            aria-pressed={settings.textSize === s.id}
-            className={cn(
-              "flex-1 rounded-2xl py-3 font-bold transition-colors",
-              settings.textSize === s.id
-                ? "bg-[var(--accent)] text-white"
-                : "bg-ink/6 text-ink"
-            )}
-            style={{ fontSize: `${13 * s.scale}px` }}
-          >
-            {s.id}
-          </button>
-        ))}
+      <div className="rounded-3xl bg-surface-raised p-3 shadow-card">
+        <Segmented
+          layoutGroupId="a11y-textsize"
+          value={settings.textSize}
+          onChange={(id) => settings.set("textSize", id)}
+          segments={TEXT_SIZES.map((t) => ({
+            id: t.id,
+            // Each option is set at the size it selects, so the control is
+            // its own preview rather than three identical letters.
+            label: <span style={{ fontSize: `${13 * t.scale}px` }}>{t.id}</span>,
+            srLabel: { S: "Small text", M: "Medium text", L: "Large text" }[t.id],
+          }))}
+        />
       </div>
 
       <SectionLabel>Motion</SectionLabel>
