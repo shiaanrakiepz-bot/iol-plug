@@ -12,7 +12,6 @@ import { Glyph } from "@/components/icons/glyphs";
 
 /** AI Daily Brief — top stories picked from the user's interests. */
 export function DailyBrief() {
-  const setProfilePage = useUI((s) => s.setProfilePage);
   const openReader = useUI((s) => s.openReader);
   const openVideo = useUI((s) => s.openVideo);
   const user = useSettings((s) => s.user);
@@ -60,7 +59,7 @@ export function DailyBrief() {
 
   return (
     <div>
-      <SubPageHeader title="Daily Brief" onBack={() => setProfilePage("main")} />
+      <SubPageHeader title="Daily Brief" />
 
       <div
         className="mt-3 overflow-hidden rounded-3xl p-6 text-white shadow-card"

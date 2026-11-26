@@ -8,7 +8,6 @@ import { imageUrl } from "@/data/articles";
 import { TYPE_COLOR, closingLabel, getOpportunity } from "@/data/opportunities";
 import { useContent } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
-import { cn } from "@/lib/utils";
 import { SubPageHeader, EmptyState } from "./shared";
 import { Segmented } from "@/components/ui/segmented";
 
@@ -31,7 +30,6 @@ const VIEWS: { id: View; label: string; icon: React.ReactNode }[] = [
 ];
 
 export function Applications() {
-  const setProfilePage = useUI((s) => s.setProfilePage);
   const setTab = useUI((s) => s.setTab);
   const openOpportunity = useUI((s) => s.openOpportunity);
   const applications = useContent((s) => s.applications);
@@ -70,7 +68,7 @@ export function Applications() {
 
   return (
     <div>
-      <SubPageHeader title="Applications" onBack={() => setProfilePage("main")} />
+      <SubPageHeader title="Applications" />
 
       <Segmented
         className="mt-3"

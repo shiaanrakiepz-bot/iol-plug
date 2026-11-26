@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import type { Article } from "@/types";
 import { posterUrl } from "@/data/articles";
 import { CATEGORY_MAP } from "@/data/categories";
-import { useUI } from "@/lib/ui-store";
+import { useUI, backTargetFor } from "@/lib/ui-store";
 import { cn } from "@/lib/utils";
 import { Glyph, type GlyphName } from "@/components/icons/glyphs";
 
@@ -19,6 +19,14 @@ import { Glyph, type GlyphName } from "@/components/icons/glyphs";
  * IntersectionObserver on a sentinel under the large title, so there is no
  * scroll handler running on every frame.
  */
+/** Pops to wherever this page's parent is. */
+export function useProfileBack() {
+  const page = useUI((s) => s.profilePage);
+  const setProfilePage = useUI((s) => s.setProfilePage);
+  const target = backTargetFor(page);
+  return target === null ? null : () => setProfilePage(target);
+}
+
 export function SubPageHeader({
   title,
   onBack,
@@ -26,10 +34,13 @@ export function SubPageHeader({
   subtitle,
 }: {
   title: string;
-  onBack: () => void;
+  /** Defaults to this page's parent; pass one only to override it. */
+  onBack?: () => void;
   action?: React.ReactNode;
   subtitle?: string;
 }) {
+  const fallback = useProfileBack();
+  const back = onBack ?? fallback ?? (() => undefined);
   const sentinel = useRef<HTMLDivElement>(null);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -57,7 +68,7 @@ export function SubPageHeader({
       >
         <motion.button
           whileTap={{ scale: 0.88 }}
-          onClick={onBack}
+          onClick={back}
           aria-label="Back"
           className="-ml-1.5 flex items-center gap-0.5 text-[var(--accent)]"
         >
@@ -227,3 +238,4 @@ export function SectionLabel({ children }: { children: React.ReactNode }) {
     </p>
   );
 }
+

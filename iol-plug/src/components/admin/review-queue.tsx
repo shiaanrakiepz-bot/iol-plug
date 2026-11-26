@@ -15,7 +15,7 @@ import {
 import type { Submission, SubmissionKind, SubmissionStatus } from "@/types";
 import { useContent } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
-import { cn, vibrate } from "@/lib/utils";
+import { vibrate } from "@/lib/utils";
 import { Segmented } from "@/components/ui/segmented";
 
 const KIND_ICON: Record<SubmissionKind, React.ReactNode> = {

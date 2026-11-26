@@ -11,7 +11,6 @@ import {
   UserCog,
   Moon,
   Sun,
-  Wifi,
   Film,
   LogOut,
   Trash2,
@@ -49,7 +48,7 @@ function SettingsMain() {
 
   return (
     <div>
-      <SubPageHeader title="Settings" onBack={() => setProfilePage("main")} />
+      <SubPageHeader title="Settings" />
 
       <SectionLabel>Personalise</SectionLabel>
       <div className="ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
@@ -114,7 +113,7 @@ function SettingsMain() {
 
       <SectionLabel>Account</SectionLabel>
       <div className="ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
-        <MenuRow icon={<ShieldCheck size={18} />} iconBg="#22C55E" label="Privacy" onPress={() => showToast("Your data stays on this device in the demo", "lock")} />
+        <MenuRow icon={<ShieldCheck size={18} />} iconBg="#22C55E" label="Privacy" onPress={() => setProfilePage("privacy")} />
         <MenuRow icon={<UserCog size={18} />} iconBg="#64748B" label="Manage account" onPress={() => setProfilePage("account")} />
       </div>
 
@@ -127,12 +126,11 @@ function SettingsMain() {
 
 /* ------------------------------------------------------------------ */
 function AppearancePage() {
-  const setProfilePage = useUI((s) => s.setProfilePage);
   const settings = useSettings();
 
   return (
     <div>
-      <SubPageHeader title="Appearance" onBack={() => setProfilePage("settings")} />
+      <SubPageHeader title="Appearance" />
 
       <SectionLabel>Theme</SectionLabel>
       <div className="grid grid-cols-2 gap-3">
@@ -209,13 +207,12 @@ function AppearancePage() {
 
 /* ------------------------------------------------------------------ */
 function NotificationsPage() {
-  const setProfilePage = useUI((s) => s.setProfilePage);
   const notifications = useSettings((s) => s.notifications);
   const setNotification = useSettings((s) => s.setNotification);
 
   return (
     <div>
-      <SubPageHeader title="Notifications" onBack={() => setProfilePage("settings")} />
+      <SubPageHeader title="Notifications" />
       <div className="mt-3 ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
         <ToggleRow label="Breaking news" detail="Big stories, the moment they break" value={notifications.breaking} onChange={(v) => setNotification("breaking", v)} />
         <ToggleRow label="Daily Brief" detail="Your personalised brief every morning at 7am" value={notifications.dailyBrief} onChange={(v) => setNotification("dailyBrief", v)} />
@@ -228,13 +225,12 @@ function NotificationsPage() {
 
 /* ------------------------------------------------------------------ */
 function PrivacyPage() {
-  const setProfilePage = useUI((s) => s.setProfilePage);
   const showToast = useUI((s) => s.showToast);
   const settings = useSettings();
 
   return (
     <div>
-      <SubPageHeader title="Privacy" onBack={() => setProfilePage("main")} />
+      <SubPageHeader title="Privacy" />
 
       <div className="mt-2 ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
         <ToggleRow
@@ -286,12 +282,11 @@ function PrivacyPage() {
 
 /* ------------------------------------------------------------------ */
 function AccessibilityPage() {
-  const setProfilePage = useUI((s) => s.setProfilePage);
   const settings = useSettings();
 
   return (
     <div>
-      <SubPageHeader title="Accessibility" onBack={() => setProfilePage("settings")} />
+      <SubPageHeader title="Accessibility" />
 
       <SectionLabel>Text size</SectionLabel>
       <div className="rounded-3xl bg-surface-raised p-3 shadow-card">
@@ -319,19 +314,6 @@ function AccessibilityPage() {
         />
       </div>
 
-      <SectionLabel>Data</SectionLabel>
-      <div className="ios-group rounded-3xl bg-surface-raised p-1.5 shadow-card">
-        <ToggleRow
-          label={
-            <span className="flex items-center gap-1.5">
-              <Wifi size={14} /> Low data mode
-            </span>
-          }
-          detail="Same as Data saver — smaller images, no autoplay"
-          value={settings.dataSaver}
-          onChange={(v) => settings.set("dataSaver", v)}
-        />
-      </div>
       <p className="mt-3 px-2 text-[12px] font-medium leading-relaxed text-ink-faint">
         IOL Plug supports screen readers, keyboard navigation and dynamic text out of the box. Every gesture also has a button alternative.
       </p>
@@ -357,7 +339,7 @@ function AccountPage() {
 
   return (
     <div>
-      <SubPageHeader title="Manage account" onBack={() => setProfilePage("settings")} />
+      <SubPageHeader title="Manage account" />
 
       <div className="mt-3 rounded-3xl bg-surface-raised p-5 shadow-card">
         <p className="text-[11px] font-bold uppercase tracking-widest text-ink-faint">Signed in as</p>

@@ -28,6 +28,29 @@ export type ProfilePage =
   | "brief"
   | "applications";
 
+/**
+ * Where the back chevron goes from each profile page — null on the root,
+ * which has nothing to pop to.
+ *
+ * This lives here rather than on each screen because the chevron and the
+ * edge-swipe gesture both need it, and when a screen kept its own answer the
+ * two drifted: Privacy's chevron popped to the profile root while the
+ * gesture popped to Settings.
+ */
+export function backTargetFor(page: ProfilePage): ProfilePage | null {
+  if (page === "main") return null;
+  switch (page) {
+    case "notifications":
+    case "appearance":
+    case "accessibility":
+    case "privacy":
+    case "account":
+      return "settings";
+    default:
+      return "main";
+  }
+}
+
 interface ToastData {
   id: number;
   message: string;

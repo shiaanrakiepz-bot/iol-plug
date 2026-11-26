@@ -5,24 +5,19 @@ import {
   Briefcase,
   ShieldCheck,
   Heart,
-  Bookmark,
+  Clock,
   History,
   ListMusic,
   Download,
   Trophy,
   Settings,
-  Bell,
-  Shield,
   Trash2,
 } from "lucide-react";
-import { useUI, type ProfilePage } from "@/lib/ui-store";
+import { useUI, backTargetFor, type ProfilePage } from "@/lib/ui-store";
 import {
   useContent,
   useSettings,
   savedIds,
-  ACCENTS,
-  TEXT_SIZES,
-  LANGUAGES,
 } from "@/lib/store";
 import { getArticle } from "@/data/articles";
 import { SELF_HANDLE } from "@/data/accounts";
@@ -31,7 +26,6 @@ import {
   SubPageHeader,
   ArticleRow,
   MenuRow,
-  ToggleRow,
   EmptyState,
   SectionLabel,
 } from "./shared";
@@ -43,27 +37,14 @@ import { TodayPanel } from "@/components/progress/today-panel";
 import { DailyBrief } from "./brief";
 import { cn } from "@/lib/utils";
 import { useEdgeSwipeBack } from "@/lib/use-edge-swipe-back";
-import { Segmented } from "@/components/ui/segmented";
 import { Glyph, type GlyphName } from "@/components/icons/glyphs";
 
-/**
- * Where the back chevron goes from each page. The settings children pop to
- * Settings; everything else pops to the profile root. Keeping it here means
- * the edge gesture and the chevron can never disagree.
- */
-const BACK_TO: Partial<Record<ProfilePage, ProfilePage>> = {
-  notifications: "settings",
-  appearance: "settings",
-  accessibility: "settings",
-  privacy: "settings",
-  account: "settings",
-};
-
 export function Profile() {
-  const page = useUI((s) => s.profilePage);
   const setProfilePage = useUI((s) => s.setProfilePage);
+  const page = useUI((s) => s.profilePage);
 
-  const back = page === "main" ? null : () => setProfilePage(BACK_TO[page] ?? "main");
+  const target = backTargetFor(page);
+  const back = target === null ? null : () => setProfilePage(target);
   const swipe = useEdgeSwipeBack(back);
 
   return (
@@ -116,15 +97,14 @@ function initialsOf(name: string | undefined): string {
 }
 
 function ProfileMain() {
+  const setProfilePage = useUI((s) => s.setProfilePage);
   const user = useSettings((s) => s.user);
   const interests = useSettings((s) => s.interests);
-  const settings = useSettings();
   const stats = useContent((s) => s.stats);
   const liked = useContent((s) => s.liked);
   const playlists = useContent((s) => s.playlists);
   const history = useContent((s) => s.history);
   const downloads = useContent((s) => s.downloads);
-  const setProfilePage = useUI((s) => s.setProfilePage);
   const showToast = useUI((s) => s.showToast);
   const viewAccount = useUI((s) => s.viewAccount);
 
@@ -133,6 +113,8 @@ function ProfileMain() {
     (a) => metricValue(stats, interests.length, a.metric) >= a.goal
   );
   const savedCount = savedIds(playlists).length;
+  // The row below opens Read Later, so it has to count Read Later.
+  const readLaterCount = useContent((s) => s.readLater).length;
   const applicationCount = useContent((s) => s.applications.length);
   const pendingReviews = useContent((s) => s.submissions.filter((x) => x.status === "pending").length);
   const isReviewer = useSettings((s) => s.isReviewer);
@@ -224,99 +206,12 @@ function ProfileMain() {
       <SectionLabel>Your library</SectionLabel>
       <Group>
         <MenuRow icon={<Heart size={16} />} iconBg="#FF8FB1" label="Liked stories" detail={String(liked.length)} onPress={() => setProfilePage("liked")} />
-        <MenuRow icon={<Bookmark size={15} />} iconBg="#FFD166" label="Saved" detail={String(savedCount)} onPress={() => setProfilePage("saved")} />
+        <MenuRow icon={<Clock size={16} />} iconBg="#FFD166" label="Read later" detail={String(readLaterCount)} onPress={() => setProfilePage("saved")} />
         <MenuRow icon={<History size={16} />} iconBg="#7CC4FF" label="History" detail={String(history.length)} onPress={() => setProfilePage("history")} />
         <MenuRow icon={<ListMusic size={16} />} iconBg="#D9A0FF" label="Playlists" detail={String(playlists.length)} onPress={() => setProfilePage("playlists")} />
         <MenuRow icon={<Download size={16} />} iconBg="#7CE0B3" label="Downloads" detail={String(downloads.length)} onPress={() => setProfilePage("downloads")} />
         <MenuRow icon={<Briefcase size={16} />} iconBg="#6FBFFF" label="Applications" detail={String(applicationCount)} onPress={() => setProfilePage("applications")} />
         <MenuRow icon={<Trophy size={16} />} iconBg="#FFB35C" label="Achievements" detail={`${unlocked.length}/${ACHIEVEMENTS.length}`} onPress={() => setProfilePage("achievements")} />
-      </Group>
-
-      {/* appearance */}
-      <SectionLabel>Appearance</SectionLabel>
-      <div className="flex flex-col gap-3.5 rounded-[20px] border border-[var(--glass-border)] bg-surface-raised px-4 py-3.5">
-        <Segmented
-          layoutGroupId="profile-theme"
-          value={settings.theme}
-          onChange={(t) => settings.set("theme", t)}
-          segments={[
-            { id: "dark" as const, label: "Dark" },
-            { id: "light" as const, label: "Light" },
-          ]}
-        />
-
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] font-semibold text-ink">Accent colour</span>
-          <div className="flex gap-2.5">
-            {ACCENTS.map((a) => (
-              <button
-                key={a.id}
-                onClick={() => settings.set("accent", a.id)}
-                aria-label={a.label}
-                aria-pressed={settings.accent === a.id}
-                className="h-[26px] w-[26px] rounded-full border-2 transition-all duration-200"
-                style={{
-                  background: a.hex,
-                  borderColor:
-                    settings.accent === a.id
-                      ? settings.theme === "dark"
-                        ? "#fff"
-                        : "#101014"
-                      : "transparent",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] font-semibold text-ink">Text size</span>
-          <Segmented
-            className="w-[132px]"
-            size="sm"
-            layoutGroupId="profile-textsize"
-            value={settings.textSize}
-            onChange={(id) => settings.set("textSize", id)}
-            segments={TEXT_SIZES.map((t) => ({
-              id: t.id,
-              label: t.id,
-              srLabel: { S: "Small", M: "Medium", L: "Large" }[t.id],
-            }))}
-          />
-        </div>
-      </div>
-
-      {/* playback */}
-      <SectionLabel>Playback &amp; data</SectionLabel>
-      <Group>
-        <ToggleRow label="Autoplay videos" value={settings.autoplayVideos} onChange={(v) => settings.set("autoplayVideos", v)} />
-        <ToggleRow label="Captions" value={settings.captions} onChange={(v) => settings.set("captions", v)} />
-        <ToggleRow label="Data saver" value={settings.dataSaver} onChange={(v) => settings.set("dataSaver", v)} />
-        <ValueRow
-          label="Video quality"
-          value={QUALITY_LABEL[settings.videoQuality]}
-          onPress={() => {
-            const order = ["auto", "low", "high"] as const;
-            const next = order[(order.indexOf(settings.videoQuality) + 1) % order.length];
-            settings.set("videoQuality", next);
-          }}
-        />
-      </Group>
-
-      {/* general */}
-      <SectionLabel>General</SectionLabel>
-      <Group>
-        <MenuRow icon={<Bell size={16} />} label="Notification preferences" onPress={() => setProfilePage("notifications")} />
-        <ValueRow
-          label="Language"
-          value={settings.language}
-          onPress={() => {
-            const i = LANGUAGES.indexOf(settings.language);
-            settings.set("language", LANGUAGES[(i + 1) % LANGUAGES.length]);
-          }}
-        />
-        <ToggleRow label="Reduce motion" value={settings.reducedMotion} onChange={(v) => settings.set("reducedMotion", v)} />
-        <MenuRow icon={<Shield size={16} />} label="Privacy" onPress={() => setProfilePage("privacy")} />
       </Group>
 
       {/*
@@ -338,10 +233,14 @@ function ProfileMain() {
         </>
       )}
 
-      {/* account */}
-      <SectionLabel>Account</SectionLabel>
+      <SectionLabel>Settings</SectionLabel>
       <Group>
-        <MenuRow icon={<Settings size={16} />} label="Manage account" onPress={() => setProfilePage("account")} />
+        <MenuRow
+          icon={<Settings size={16} />}
+          iconBg="#8E8E93"
+          label="Settings"
+          onPress={() => setProfilePage("settings")}
+        />
       </Group>
 
       <p className="mt-[22px] text-center text-[10px] tracking-[1px] text-ink-dim">
@@ -350,8 +249,6 @@ function ProfileMain() {
     </div>
   );
 }
-
-const QUALITY_LABEL = { auto: "Auto", low: "480p", high: "1080p" } as const;
 
 function Group({ children }: { children: React.ReactNode }) {
   return (
@@ -376,26 +273,6 @@ function PillButton({
     >
       {children}
     </motion.button>
-  );
-}
-
-function ValueRow({
-  label,
-  value,
-  onPress,
-}: {
-  label: string;
-  value: string;
-  onPress: () => void;
-}) {
-  return (
-    <button
-      onClick={onPress}
-      className="flex w-full items-center justify-between px-4 py-3.5 text-left transition-colors active:bg-ink/8"
-    >
-      <span className="text-[13px] font-semibold text-ink">{label}</span>
-      <span className="text-[12px] font-semibold text-[var(--accent)]">{value}</span>
-    </button>
   );
 }
 
@@ -453,13 +330,12 @@ function ListPage({
   empty: { glyph: GlyphName; title: string; text: string };
   trailing?: (id: string) => React.ReactNode;
 }) {
-  const setProfilePage = useUI((s) => s.setProfilePage);
   const setTab = useUI((s) => s.setTab);
   const articles = ids.map(getArticle).filter(Boolean);
 
   return (
     <div>
-      <SubPageHeader title={title} onBack={() => setProfilePage("main")} />
+      <SubPageHeader title={title} />
       {articles.length === 0 ? (
         <EmptyState {...empty} cta="Go to your feed" onCta={() => setTab("foryou")} />
       ) : (
@@ -493,7 +369,6 @@ function LikedPage() {
 function HistoryPage() {
   const history = useContent((s) => s.history);
   const clearHistory = useContent((s) => s.clearHistory);
-  const setProfilePage = useUI((s) => s.setProfilePage);
   const setTab = useUI((s) => s.setTab);
   const showToast = useUI((s) => s.showToast);
   const articles = history.map(getArticle).filter(Boolean);
@@ -502,7 +377,6 @@ function HistoryPage() {
     <div>
       <SubPageHeader
         title="History"
-        onBack={() => setProfilePage("main")}
         action={
           articles.length > 0 ? (
             <button
@@ -553,7 +427,6 @@ function PlaylistsPage() {
   const readLater = useContent((s) => s.readLater);
   const deletePlaylist = useContent((s) => s.deletePlaylist);
   const removeFromPlaylist = useContent((s) => s.removeFromPlaylist);
-  const setProfilePage = useUI((s) => s.setProfilePage);
   const profilePage = useUI((s) => s.profilePage);
   const playlistDetail = useUI((s) => s.playlistDetail);
   const setPlaylistDetail = useUI((s) => s.setPlaylistDetail);
@@ -620,7 +493,7 @@ function PlaylistsPage() {
 
   return (
     <div>
-      <SubPageHeader title="Playlists" onBack={() => setProfilePage("main")} />
+      <SubPageHeader title="Playlists" />
       {playlists.length === 0 ? (
         <EmptyState glyph="archive" title="No playlists yet" text="Swipe down on any story to create your first playlist." cta="Go to your feed" onCta={() => setTab("foryou")} />
       ) : (
@@ -661,11 +534,10 @@ function PlaylistsPage() {
 function AchievementsPage() {
   const stats = useContent((s) => s.stats);
   const interests = useSettings((s) => s.interests);
-  const setProfilePage = useUI((s) => s.setProfilePage);
 
   return (
     <div>
-      <SubPageHeader title="Achievements" onBack={() => setProfilePage("main")} />
+      <SubPageHeader title="Achievements" />
       <div className="mt-3 grid grid-cols-2 gap-3">
         {ACHIEVEMENTS.map((a, i) => {
           const value = metricValue(stats, interests.length, a.metric);
